@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JRM Server Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;700&display=swap');
+
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-orange: #f59e0b;
+            --accent-green: #10b981;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .code-font { font-family: 'Fira Code', monospace; }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .node {
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .node:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Animated connection lines */
+        .connector {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 2;
+            stroke-dasharray: 8, 8;
+        }
+
+        .pulse-line {
+            fill: none;
+            stroke: var(--accent-blue);
+            stroke-width: 2;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: dash 3s linear infinite;
+        }
+
+        .pulse-line-webhook {
+            stroke: var(--accent-orange);
+            animation: dash 2s linear infinite;
+        }
+
+        @keyframes dash {
+            from { stroke-dashoffset: 200; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .glow {
+            filter: drop-shadow(0 0 5px var(--accent-blue));
+        }
+
+        .terminal-header {
+            background: #334155;
+            padding: 5px 10px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-bold mb-2 tracking-tight">jrmServer <span class="text-blue-400">Infrastructure</span></h1>
+            <p class="text-slate-400">Visualizing the flow from Cloudflare Tunnel to local Proxmox LXC</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start relative">
+            
+            <!-- SVG Background for lines -->
+            <svg class="absolute inset-0 w-full h-full pointer-events-none hidden lg:block" id="svg-canvas">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="rgba(255,255,255,0.2)" />
+                    </marker>
+                </defs>
+                <!-- Lines will be rendered via JS to ensure correct coordinates -->
+            </svg>
+
+            <!-- Column 1: Sources -->
+            <div class="space-y-8 z-10">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 ml-2">Traffic Sources</h3>
+                
+                <div id="node-user" class="node glass p-6 rounded-xl border border-white/10">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="bg-blue-500/20 p-3 rounded-lg"><svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2"></path></svg></div>
+                        <div>
+                            <h4 class="font-bold">End User</h4>
+                            <p class="text-xs text-slate-400">jrmserver.jorim.xyz</p>
+                        </div>
+                    </div>
+                    <button onclick="triggerTraffic('web')" class="text-[10px] bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-full transition">Simulate Request</button>
+                </div>
+
+                <div id="node-github" class="node glass p-6 rounded-xl border border-white/10">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="bg-orange-500/20 p-3 rounded-lg"><svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-width="2"></path></svg></div>
+                        <div>
+                            <h4 class="font-bold">GitHub Repo</h4>
+                            <p class="text-xs text-slate-400">Webhook Trigger</p>
+                        </div>
+                    </div>
+                    <button onclick="triggerTraffic('git')" class="text-[10px] bg-orange-600 hover:bg-orange-500 px-3 py-1 rounded-full transition">Trigger Update</button>
+                </div>
+            </div>
+
+            <!-- Column 2: Middleware -->
+            <div class="space-y-8 z-10 flex flex-col justify-center h-full">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 ml-2">Secure Bridge</h3>
+                
+                <div id="node-cloudflare" class="node glass p-8 rounded-xl border border-white/10 text-center">
+                    <div class="inline-block bg-orange-500/10 p-4 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/></svg>
+                    </div>
+                    <h4 class="font-bold text-lg">Cloudflare Tunnel</h4>
+                    <p class="text-xs text-slate-400 mb-4">ID: a338...b834e11</p>
+                    <div class="text-[10px] code-font bg-black/40 p-2 rounded text-left text-orange-200">
+                        service: http://localhost:80<br>
+                        service: http://localhost:9000
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3: Home Infrastructure -->
+            <div class="space-y-8 z-10">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 ml-2">Proxmox Environment</h3>
+                
+                <div class="glass rounded-xl border border-white/10 overflow-hidden">
+                    <div class="bg-slate-700/50 p-3 flex justify-between items-center border-b border-white/10">
+                        <span class="text-xs font-bold flex items-center"><span class="status-dot"></span> CT101 (LXC)</span>
+                        <span class="text-[10px] code-font opacity-50">Ubuntu 22.04</span>
+                    </div>
+                    
+                    <div class="p-6 space-y-6">
+                        <!-- Nginx Item -->
+                        <div id="node-nginx" class="node p-4 bg-black/30 rounded-lg border border-white/5">
+                            <h5 class="text-sm font-bold text-blue-300 mb-1">Nginx Webserver</h5>
+                            <p class="text-[10px] text-slate-400">Port 80 -> /var/www/html/jrmServer</p>
+                        </div>
+
+                        <!-- Webhook Item -->
+                        <div id="node-webhook" class="node p-4 bg-black/30 rounded-lg border border-white/5">
+                            <h5 class="text-sm font-bold text-orange-300 mb-1">Webhook Tool</h5>
+                            <p class="text-[10px] text-slate-400">Port 9000 -> redeploy.sh</p>
+                        </div>
+
+                        <!-- File System Item -->
+                        <div id="node-fs" class="p-4 bg-slate-800/50 rounded-lg border border-white/5">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+                                <span class="text-xs font-bold">File System Structure</span>
+                            </div>
+                            <div class="text-[9px] code-font text-slate-300 leading-tight">
+                                /var/www/html/jrmServer/<br>
+                                ├── index.html<br>
+                                └── sites/<br>
+                                &nbsp;&nbsp;&nbsp;├── englisch/ExteriorPaint.txt<br>
+                                &nbsp;&nbsp;&nbsp;└── franz/index.html
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="mt-12 glass rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+            <div class="terminal-header">
+                <div class="dot bg-red-500"></div>
+                <div class="dot bg-yellow-500"></div>
+                <div class="dot bg-green-500"></div>
+                <span class="text-[10px] text-slate-400 ml-4">root@CT101: /usr/local/bin/redeploy.sh</span>
+            </div>
+            <div id="terminal-content" class="p-4 h-48 overflow-y-auto text-sm code-font bg-black/80 text-green-400 custom-scrollbar">
+                <div>[SYSTEM] Initialized monitoring...</div>
+                <div>[SYSTEM] Waiting for triggers...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal-content');
+        const svgCanvas = document.getElementById('svg-canvas');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+            const color = type === 'success' ? 'text-green-400' : (type === 'warn' ? 'text-yellow-400' : 'text-slate-400');
+            div.innerHTML = `<span class="opacity-50">[${time}]</span> <span class="${color}">${msg}</span>`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function triggerTraffic(type) {
+            const startNode = type === 'web' ? 'node-user' : 'node-github';
+            const endNode = type === 'web' ? 'node-nginx' : 'node-webhook';
+            const colorClass = type === 'web' ? 'pulse-line' : 'pulse-line-webhook';
+            
+            log(type === 'web' ? 'Incoming request for jrmserver.jorim.xyz' : 'GitHub Webhook received!', 'info');
+            
+            animatePath(startNode, 'node-cloudflare', colorClass);
+            
+            setTimeout(() => {
+                animatePath('node-cloudflare', endNode, colorClass);
+                if(type === 'git') {
+                    setTimeout(() => runRedeploy(), 1000);
+                } else {
+                    log('Nginx serving content from /var/www/html/jrmServer', 'success');
+                }
+            }, 1000);
+        }
+
+        function runRedeploy() {
+            log('Executing: /usr/local/bin/redeploy.sh', 'warn');
+            setTimeout(() => log('cd /var/www/html/jrmServer', 'info'), 300);
+            setTimeout(() => log('git pull origin main', 'info'), 600);
+            setTimeout(() => {
+                log('From github.com:jrmServer', 'info');
+                log('   f2a34..a12bc  main -> origin/main', 'info');
+                log('Successfully deployed updates!', 'success');
+            }, 1500);
+        }
+
+        function animatePath(fromId, toId, className) {
+            const from = document.getElementById(fromId).getBoundingClientRect();
+            const to = document.getElementById(toId).getBoundingClientRect();
+            const svgRect = svgCanvas.getBoundingClientRect();
+
+            const x1 = from.left + from.width/2 - svgRect.left;
+            const y1 = from.top + from.height/2 - svgRect.top;
+            const x2 = to.left + to.width/2 - svgRect.left;
+            const y2 = to.top + to.height/2 - svgRect.top;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            // Create a curved path
+            const midX = (x1 + x2) / 2;
+            const d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+            
+            path.setAttribute("d", d);
+            path.setAttribute("class", className + " glow");
+            
+            svgCanvas.appendChild(path);
+            
+            setTimeout(() => {
+                path.style.opacity = '0';
+                path.style.transition = 'opacity 0.5s';
+                setTimeout(() => path.remove(), 500);
+            }, 2000);
+        }
+
+        // Initialize background static lines
+        function drawStaticLines() {
+            const connections = [
+                ['node-user', 'node-cloudflare'],
+                ['node-github', 'node-cloudflare'],
+                ['node-cloudflare', 'node-nginx'],
+                ['node-cloudflare', 'node-webhook']
+            ];
+
+            svgCanvas.innerHTML = ''; // Clear
+            connections.forEach(([f, t]) => {
+                const from = document.getElementById(f).getBoundingClientRect();
+                const to = document.getElementById(t).getBoundingClientRect();
+                const svgRect = svgCanvas.getBoundingClientRect();
+
+                const x1 = from.left + from.width/2 - svgRect.left;
+                const y1 = from.top + from.height/2 - svgRect.top;
+                const x2 = to.left + to.width/2 - svgRect.left;
+                const y2 = to.top + to.height/2 - svgRect.top;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const midX = (x1 + x2) / 2;
+                path.setAttribute("d", `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+                path.setAttribute("class", "connector");
+                svgCanvas.appendChild(path);
+            });
+        }
+
+        window.addEventListener('resize', drawStaticLines);
+        window.onload = drawStaticLines;
+    </script>
+</body>
+</html>
