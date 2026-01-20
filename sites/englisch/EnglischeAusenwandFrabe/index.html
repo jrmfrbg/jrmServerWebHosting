@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exterior Paint: A Narrative Exploration</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #fdfbf7; /* Warm neutral background */
+            color: #2d3748;
+        }
+        h1, h2, h3, .serif-font {
+            font-family: 'Merriweather', serif;
+        }
+        .room-btn {
+            transition: all 0.3s ease;
+        }
+        .room-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .active-room {
+            border-color: #d97706; /* Amber-600 */
+            background-color: #fffbeb; /* Amber-50 */
+        }
+        
+        /* Chart Container Styling - Mandatory per instructions */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom Scrollbar for text areas */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+    
+    <!-- Chosen Palette: Warm Neutrals (Background: #fdfbf7) with Earthy Accents. 
+         Primary: Amber/Brown (Memory/History), Secondary: Slate/Blue (Agent/Cold). -->
+    <!-- Application Structure Plan: 
+         1. Header: Contextualizes the narrative (Migration/Gentrification).
+         2. Interactive Floor Plan: Central navigation hub. Users select rooms to unlock specific narrative segments and data.
+         3. Dynamic Content Panel: Updates based on room selection, showing text snippets + specific visualizations.
+         4. Thematic Analysis Section: Comparative charts (Sensory & Perception) aggregating the data.
+         5. Historical Deep Dive: Specific focus on the Malcolm X encounter.
+         Why this structure? The story is rooted in "place". Navigating via the house structure reinforces the theme of "leaving home" and allows non-linear exploration of memories attached to physical spaces. -->
+    <!-- Visualization & Content Choices:
+         1. Radar Chart: Goal: Inform/Contrast. Method: Sensory Profile. Justification: Visualizes the stark difference between the "public" front rooms (wax, air freshener) and "private" back rooms (rum, thyme).
+         2. Bar Chart: Goal: Compare. Method: Perception Gap. Justification: Contrasts the Agent's utilitarian valuation vs. Alfonse's emotional valuation of the same spaces.
+         3. Interactive Timeline (Text-based): Goal: Change. Method: Highlighted textual flow. Justification: Tracks the encounter with Malcolm X.
+         4. Confirming NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased selection:bg-amber-100 selection:text-amber-900">
+
+    <!-- Header Section -->
+    <header class="w-full bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-stone-800 tracking-tight">Exterior Paint</h1>
+                <p class="text-sm md:text-base text-stone-500 italic mt-1">Memory, Migration, and the House on Marshall Street</p>
+            </div>
+            <button onclick="resetApp()" class="text-xs md:text-sm bg-stone-100 hover:bg-stone-200 text-stone-600 px-3 py-1 rounded transition-colors">
+                Reset View
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- Introduction -->
+        <section class="max-w-3xl mx-auto text-center space-y-4">
+            <h2 class="text-xl font-bold text-stone-700">The Estate Agent is Optimistic</h2>
+            <p class="text-stone-600 leading-relaxed">
+                Alfonse Maynard is selling his home. But a house is more than bricks and mortar; it is a repository of history. 
+                Use the interactive floor plan below to explore the intersection of <strong>gentrification</strong>, <strong>personal memory</strong>, and a <strong>cross-cultural encounter</strong> that defined a life.
+                Explore the contrast between the "For Sale" product and the lived experience.
+            </p>
+        </section>
+
+        <!-- Interactive Core: House & Narrative Split -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: The House Map (Navigation) -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                    <h3 class="text-lg font-bold text-stone-800 mb-4 border-b pb-2">1. Explore the Property</h3>
+                    <p class="text-sm text-stone-500 mb-6">Select a space to reveal its story and sensory profile.</p>
+                    
+                    <!-- Stylized House Grid -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Front Window -->
+                        <button id="btn-front" onclick="loadRoom('front')" class="room-btn col-span-2 h-24 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 group">
+                            <span class="font-bold text-stone-700 group-hover:text-amber-700">The Front Window</span>
+                            <span class="text-xs text-stone-400 mt-1">Watching the Street</span>
+                        </button>
+                        
+                        <!-- Hallway -->
+                        <button id="btn-hall" onclick="loadRoom('hall')" class="room-btn h-32 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 group">
+                            <span class="font-bold text-stone-700 group-hover:text-amber-700">The Hallway</span>
+                            <span class="text-xs text-stone-400 mt-1">Narrow & Polished</span>
+                        </button>
+                        
+                        <!-- Sitting Rooms -->
+                        <button id="btn-sitting" onclick="loadRoom('sitting')" class="room-btn h-32 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 group">
+                            <span class="font-bold text-stone-700 group-hover:text-amber-700">Two Sitting Rooms</span>
+                            <span class="text-xs text-stone-400 mt-1">No-one sits here</span>
+                        </button>
+                        
+                        <!-- Back Room -->
+                        <button id="btn-back" onclick="loadRoom('back')" class="room-btn col-span-2 h-40 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 relative overflow-hidden group">
+                            <div class="absolute inset-0 bg-amber-50 opacity-0 group-hover:opacity-50 transition-opacity"></div>
+                            <span class="font-bold text-stone-700 group-hover:text-amber-700 relative z-10">The Back Room</span>
+                            <span class="text-xs text-stone-400 mt-1 relative z-10">Sanctuary & Music</span>
+                        </button>
+                        
+                        <!-- Garden -->
+                        <button id="btn-garden" onclick="loadRoom('garden')" class="room-btn col-span-2 h-24 rounded-lg border-2 border-stone-200 bg-green-50/50 flex flex-col items-center justify-center p-2 group">
+                            <span class="font-bold text-stone-700 group-hover:text-green-700">The Garden & Shed</span>
+                            <span class="text-xs text-stone-400 mt-1">A "Proper" Garden</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Stat Box -->
+                <div class="bg-stone-800 text-white p-6 rounded-xl shadow-lg">
+                    <h4 class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Historical Context</h4>
+                    <p class="serif-font text-lg italic">"Nine days after he walked on Marshall Street, Malcolm X is killed."</p>
+                    <div class="mt-4 flex items-center justify-between text-sm text-stone-400">
+                        <span>Timeline:</span>
+                        <span class="text-white font-mono">1965</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Narrative & Visualization (Dynamic) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Dynamic Content Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden min-h-[600px] flex flex-col">
+                    <div class="bg-stone-50 px-6 py-4 border-b border-stone-200 flex justify-between items-center">
+                        <h3 id="panel-title" class="text-xl font-bold text-stone-800 serif-font">Select a Room</h3>
+                        <span id="panel-badge" class="px-2 py-1 bg-stone-200 text-stone-600 text-xs rounded-full font-bold uppercase">Overview</span>
+                    </div>
+                    
+                    <div class="p-6 flex-grow flex flex-col">
+                        <!-- Text Content -->
+                        <div id="panel-content" class="text-stone-600 leading-7 mb-8 custom-scroll overflow-y-auto max-h-[300px] pr-2">
+                            <p class="italic text-stone-400 text-center mt-10">
+                                Click on a room in the floor plan to reveal Alfonse's memories, the sensory details of the space, and the clash between the past and the "For Sale" present.
+                            </p>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="w-full h-px bg-stone-100 my-4"></div>
+
+                        <!-- Visualization Section within the card -->
+                        <div class="mt-auto">
+                            <h4 id="chart-title" class="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Analytical View</h4>
+                            <!-- Chart Container -->
+                            <div class="chart-container">
+                                <canvas id="dynamicChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thematic Analysis Section: Gentrification & Identity -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-stone-200">
+            <div class="space-y-4">
+                <h3 class="text-2xl font-bold text-stone-800 serif-font">The Gentrification Index</h3>
+                <p class="text-stone-600">
+                    The estate agent, Mike Baxter, evaluates the house based on market potential and "curb appeal." Alfonse evaluates it through the lens of history and belonging. This chart contrasts the "Agent's View" (Changes needed) vs. "Alfonse's View" (Preservation).
+                </p>
+                <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
+                    <div class="chart-container h-64">
+                        <canvas id="gentrificationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <h3 class="text-2xl font-bold text-stone-800 serif-font">The Scent of Memory</h3>
+                <p class="text-stone-600">
+                    The text uses sensory details to distinguish between the "show house" prepared for strangers and the "real home." The Radar chart below maps the olfactory landscape of <em>Marshall Street</em>.
+                </p>
+                <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
+                    <div class="chart-container h-64">
+                        <canvas id="sensoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Malcolm X Encounter Section -->
+        <section class="bg-stone-900 text-stone-100 rounded-2xl overflow-hidden shadow-2xl mt-12">
+            <div class="grid grid-cols-1 md:grid-cols-12">
+                <div class="md:col-span-5 bg-amber-700 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+                    <h2 class="text-3xl md:text-4xl font-bold serif-font text-white mb-4 relative z-10">The Encounter</h2>
+                    <div class="w-16 h-1 bg-white mb-6 relative z-10"></div>
+                    <p class="text-amber-100 italic relative z-10">
+                        "He tells Lily all about it, how he and Malcolm spoke heart to heart and Alfonse found the strength to stand up and be a man."
+                    </p>
+                </div>
+                <div class="md:col-span-7 p-8 md:p-12 space-y-6">
+                    <h3 class="text-xl font-bold text-amber-500 uppercase tracking-wider">Topics of Migration & Identity</h3>
+                    <p class="text-stone-300 leading-relaxed">
+                        In a story about selling a house, the sudden appearance of <strong>Malcolm X</strong> acts as a powerful anchor for Alfonse's identity. It connects the local (Marshall Street) with the global struggle for civil rights and dignity.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold mt-1">1</div>
+                            <div class="ml-4">
+                                <h4 class="font-bold text-white">The Visit</h4>
+                                <p class="text-sm text-stone-400">Malcolm X walked on Marshall Street. A moment of extraordinary history in an ordinary setting.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold mt-1">2</div>
+                            <div class="ml-4">
+                                <h4 class="font-bold text-white">The Impact</h4>
+                                <p class="text-sm text-stone-400">Nine days before his death. The encounter gave Alfonse "strength." A legacy that outlasts the house.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold mt-1">3</div>
+                            <div class="ml-4">
+                                <h4 class="font-bold text-white">The Tribute</h4>
+                                <p class="text-sm text-stone-400">The toast. Alfonse raises his glass of white rum to "Lily... and Malcolm." Linking his personal love with his cultural hero.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-stone-400 text-sm">
+            <p>&copy; 2024 Interactive Narrative based on "Exterior Paint".</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        let currentRoomId = null;
+        let dynamicChartInstance = null;
+
+        // Data Store (Source: ExteriorPaint.txt)
+        const roomData = {
+            'front': {
+                title: "The Front Window",
+                badge: "Observation Point",
+                text: `<p>Alfonse Maynard had been watching from the front room window for fifteen minutes. He saw Baxter, the estate agent, pull up in his white car. From this vantage point, Alfonse observes the changes in his neighborhood—the "uncut hedge at number eighty-five," the "shoddy porch at forty-nine," and the "permanent satellite dishes on every house but his own."</p>
+                       <p class="mt-4">This boundary between the inside and outside marks the contrast between Alfonse's preserved world and the shifting demographics of Marshall Street.</p>`,
+                chartLabel: "Visual Clutter (Satellite Dishes)",
+                chartData: [1, 10], // Alfonse vs Neighbors
+                chartType: 'bar',
+                chartTitle: "Satellite Dishes: Alfonse vs. The Street"
+            },
+            'hall': {
+                title: "The Hallway",
+                badge: "Transition Zone",
+                text: `<p>Alfonse leads the agent through the "narrow hall." It is a space of transit, not residence. The sensory details here are crucial: it smells of "air freshener" and "beeswax."</p>
+                       <p class="mt-4">These are artificial, preservative smells. They represent the effort to present a "good face" to the world, masking the reality of life for the sake of the sale. It is a space of performance for the intruder (Baxter).</p>`,
+                chartLabel: "Scent Artificiality",
+                chartData: [90, 20], // Artificial vs Natural
+                chartType: 'doughnut',
+                chartTitle: "Scent Profile: Artificial vs. Natural"
+            },
+            'sitting': {
+                title: "Two Sitting Rooms",
+                badge: "Unused Space",
+                text: `<p>These are "rooms where no-one sits." They smell of "unopened windows." This highlights a common theme in the homes of that generation—the 'best room' reserved for guests who rarely come.</p>
+                       <p class="mt-4">The agent sees potential ("knock the two downstairs rooms into one like Mr. Kang did"), representing the modern desire for open-plan living. Alfonse sees distinct spaces filled with the memory of a "dead woman" (Lily), spaces that the new owners will inevitably erase.</p>`,
+                chartLabel: "Occupancy Frequency",
+                chartData: [5, 95], // Usage vs Vacancy
+                chartType: 'pie',
+                chartTitle: "Room Utilization (Alfonse's Era)"
+            },
+            'back': {
+                title: "The Back Room",
+                badge: "The Heart",
+                text: `<p>This is where Alfonse lives. In contrast to the front, here "thyme and pepper have settled in the nap of his dralon armchair." There are "sticky spots of coffee and rum."</p>
+                       <p class="mt-4">It contains his treasures: a "display cabinet for his wife," a "footstool for his bad foot," and a "black cd player for Nat King Cole." This room <em>is</em> Alfonse. It is warm, messy, and aromatic—everything the estate agent's clipboard cannot capture.</p>`,
+                chartLabel: "Comfort Metrics",
+                chartData: [95, 80, 90, 30], // Rum, Music, Memory, Cleanliness
+                chartLabels: ["White Rum", "Nat King Cole", "Memories of Lily", "Tidiness"],
+                chartType: 'radar',
+                chartTitle: "The Atmosphere of the Back Room"
+            },
+            'garden': {
+                title: "The Garden & Shed",
+                badge: "Lily's Domain",
+                text: `<p>The estate agent calls it "a proper garden." He notes the shed. But for Alfonse, the garden is likely where he feels Lily's absence most acutely. The agent taps the window frame, calculating value.</p>
+                       <p class="mt-4">Alfonse remembers: "They will open Lily’s cupboards... but they will never know her and the gentle touch of her hand." The garden is part of the property value to Baxter, but hallowed ground to Alfonse.</p>`,
+                chartLabel: "Value Perception",
+                chartData: [80, 20], // Economic vs Emotional
+                chartType: 'polarArea',
+                chartTitle: "Value: Market vs. Memory"
+            }
+        };
+
+        // Navigation Logic
+        function loadRoom(roomId) {
+            // Update UI State
+            document.querySelectorAll('.room-btn').forEach(btn => btn.classList.remove('active-room', 'border-amber-500', 'bg-amber-50'));
+            document.getElementById(`btn-${roomId}`).classList.add('active-room', 'border-amber-500', 'bg-amber-50');
+            
+            currentRoomId = roomId;
+            const data = roomData[roomId];
+
+            // Update Text Content
+            const titleEl = document.getElementById('panel-title');
+            const badgeEl = document.getElementById('panel-badge');
+            const contentEl = document.getElementById('panel-content');
+            const chartTitleEl = document.getElementById('chart-title');
+
+            // Fade out effect
+            contentEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                titleEl.textContent = data.title;
+                badgeEl.textContent = data.badge;
+                badgeEl.className = "px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded-full font-bold uppercase";
+                contentEl.innerHTML = data.text;
+                chartTitleEl.textContent = data.chartTitle;
+                
+                // Update Visualization
+                updateDynamicChart(data);
+                
+                contentEl.style.opacity = '1';
+            }, 200);
+        }
+
+        function resetApp() {
+            location.reload();
+        }
+
+        // Chart 1: Dynamic Content Chart
+        function updateDynamicChart(data) {
+            const ctx = document.getElementById('dynamicChart').getContext('2d');
+            
+            if (dynamicChartInstance) {
+                dynamicChartInstance.destroy();
+            }
+
+            let config = {
+                type: data.chartType,
+                data: {
+                    labels: data.chartLabels || (data.chartType === 'bar' ? ['Alfonse', 'Neighbors'] : ['Artificial', 'Natural']),
+                    datasets: [{
+                        label: data.chartLabel,
+                        data: data.chartData,
+                        backgroundColor: [
+                            'rgba(217, 119, 6, 0.6)', // Amber
+                            'rgba(71, 85, 105, 0.6)', // Slate
+                            'rgba(22, 163, 74, 0.6)', // Green
+                            'rgba(147, 51, 234, 0.6)' // Purple
+                        ],
+                        borderColor: [
+                            'rgba(217, 119, 6, 1)',
+                            'rgba(71, 85, 105, 1)',
+                            'rgba(22, 163, 74, 1)',
+                            'rgba(147, 51, 234, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: data.chartType !== 'bar',
+                            position: 'bottom'
+                        }
+                    },
+                    scales: data.chartType === 'bar' || data.chartType === 'radar' ? {
+                        y: { beginAtZero: true }
+                    } : {}
+                }
+            };
+
+            // Specific adjustments for Radar
+            if(data.chartType === 'radar') {
+                 config.options.scales = {
+                    r: {
+                        angleLines: {
+                            display: false
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                };
+            }
+
+            dynamicChartInstance = new Chart(ctx, config);
+        }
+
+        // Chart 2: Gentrification Index (Comparison)
+        function initGentrificationChart() {
+            const ctx = document.getElementById('gentrificationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Open Plan', 'New Roof', 'Modern Decor', 'Original Features'],
+                    datasets: [
+                        {
+                            label: "Agent's Priority",
+                            data: [90, 85, 80, 20],
+                            backgroundColor: 'rgba(71, 85, 105, 0.7)', // Slate
+                        },
+                        {
+                            label: "Alfonse's Priority",
+                            data: [10, 30, 10, 100],
+                            backgroundColor: 'rgba(217, 119, 6, 0.7)', // Amber
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: Sensory Radar (Static Analysis)
+        function initSensoryChart() {
+            const ctx = document.getElementById('sensoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Chemical/Clean', 'Beeswax', 'Spices (Thyme)', 'Alcohol (Rum)', 'Dust/Old'],
+                    datasets: [{
+                        label: 'Front House (Show)',
+                        data: [90, 85, 10, 0, 10],
+                        fill: true,
+                        backgroundColor: 'rgba(71, 85, 105, 0.2)',
+                        borderColor: 'rgb(71, 85, 105)',
+                        pointBackgroundColor: 'rgb(71, 85, 105)',
+                    }, {
+                        label: 'Back House (Real)',
+                        data: [10, 20, 95, 90, 60],
+                        fill: true,
+                        backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                        borderColor: 'rgb(217, 119, 6)',
+                        pointBackgroundColor: 'rgb(217, 119, 6)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: { borderWidth: 3 }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initGentrificationChart();
+            initSensoryChart();
+            // Load default room
+            loadRoom('front');
+        });
+
+    </script>
+</body>
+</html>
