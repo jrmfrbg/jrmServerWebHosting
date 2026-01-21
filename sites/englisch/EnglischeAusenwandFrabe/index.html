@@ -221,6 +221,31 @@
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(185, 28, 28, 0.3);
         }
+
+        /* RESPONSIVE NAVIGATION - HIDE ITEMS BASED ON ASPECT RATIO */
+        @media (aspect-ratio <= 2 / 1) {
+            #solidarity-nav {
+                display: none;
+            }
+        }
+
+        @media (aspect-ratio <= 1.5 / 1) {
+            #semiotics-nav {
+                display: none;
+            }
+        }
+
+        @media (aspect-ratio <= 1.2 / 1) {
+            #history-nav {
+                display: none;
+            }
+        }
+
+        @media (aspect-ratio <= 1 / 1) {
+            #characters-nav {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -258,10 +283,10 @@
                 <span class="font-bold text-red-700 tracking-tighter text-lg">MARSHALL ST.</span>
                 <div class="flex gap-6 text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500">
                     <a href="#intro" class="hover:text-red-700 transition">Intro</a>
-                    <a href="#characters" class="hover:text-red-700 transition">Characters</a>
-                    <a href="#history" class="hover:text-red-700 transition">History</a>
-                    <a href="#semiotics" class="hover:text-red-700 transition">Symbols</a>
-                    <a href="#solidarity" class="hover:text-red-700 transition">Solidarity</a>
+                    <a id="characters-nav" href="#characters" class="hover:text-red-700 transition">Characters</a>
+                    <a id="history-nav" href="#history" class="hover:text-red-700 transition">History</a>
+                    <a id="semiotics-nav" href="#semiotics" class="hover:text-red-700 transition">Symbols</a>
+                    <a id="solidarity-nav" href="#solidarity" class="hover:text-red-700 transition">Solidarity</a>
                 </div>
             </div>
         </nav>
