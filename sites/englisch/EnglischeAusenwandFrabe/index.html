@@ -3,267 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exterior Paint: A Narrative Exploration</title>
-    
-    <!-- Tailwind CSS -->
+    <title>The Cartography of Belonging: Exterior Paint</title>
+    <!-- Tailwind CSS for modern layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js -->
+    <!-- Chart.js for interactive data visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Lato', sans-serif;
-            background-color: #fdfbf7; /* Warm neutral background */
-            color: #2d3748;
+        :root {
+            --heritage-red: #b91c1c;
+            --smethwick-brown: #3d2b1f;
+            --slate-900: #0f172a;
         }
-        h1, h2, h3, .serif-font {
-            font-family: 'Merriweather', serif;
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b; 
+            margin: 0; 
+            overflow: hidden; /* Locked until door opens */
         }
-        .room-btn {
-            transition: all 0.3s ease;
+
+        h1, h2, h3, .serif { font-family: 'Merriweather', serif; }
+
+        /* THE BROWN BOX - MYSTERY OVERLAY */
+        #mystery-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: var(--smethwick-brown);
+            background-image: url("https://www.transparenttextures.com/patterns/wood-pattern.png");
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease-in-out, visibility 1s;
         }
-        .room-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+        /* 3D DOOR ANIMATION */
+        .door-frame {
+            perspective: 1000px;
+            width: 160px;
+            height: 280px;
+            background: #1a120b;
+            border: 6px solid #2d1f15;
+            border-bottom: 0;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 0 50px rgba(0,0,0,0.6);
         }
-        .active-room {
-            border-color: #d97706; /* Amber-600 */
-            background-color: #fffbeb; /* Amber-50 */
+
+        .door-leaf {
+            position: absolute;
+            inset: 0;
+            background-color: var(--heritage-red);
+            border: 3px solid #991b1b;
+            transform-origin: left;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
         }
-        
-        /* Chart Container Styling - Mandatory per instructions */
+
+        .door-leaf::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #fbbf24;
+            border-radius: 50%;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .door-open {
+            transform: rotateY(-115deg);
+        }
+
+        /* MAIN CONTENT REVEAL */
+        #main-wrapper {
+            opacity: 0;
+            height: 100vh;
+            overflow-y: auto;
+            display: none;
+            transition: opacity 1s ease-in;
+        }
+
+        .visible-wrapper {
+            display: block !important;
+            opacity: 1 !important;
+        }
+
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
             height: 300px;
-            max-height: 400px;
+            margin: auto;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
+
+        /* SMOOTH SCROLLING */
+        html { scroll-behavior: smooth; }
+
+        /* CHARACTER CARD HOVER */
+        .char-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .char-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
             }
         }
 
-        /* Custom Scrollbar for text areas */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 2rem;
+            height: 2rem;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
         }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1;
+
+        .modal-close:hover {
+            background: #cbd5e1;
         }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 3px;
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #b91c1c;
+            padding-bottom: 1rem;
         }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.75rem;
+            color: #0f172a;
+        }
+
+        .modal-quote {
+            background: #f1f5f9;
+            border-left: 4px solid #b91c1c;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #475569;
+        }
+
+        .modal-text {
+            color: #334155;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        .modal-highlight {
+            background: #fef08a;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        /* CLICKABLE SOLIDARITY ITEMS */
+        .solidarity-item {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .solidarity-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(185, 28, 28, 0.3);
         }
     </style>
-    
-    <!-- Chosen Palette: Warm Neutrals (Background: #fdfbf7) with Earthy Accents. 
-         Primary: Amber/Brown (Memory/History), Secondary: Slate/Blue (Agent/Cold). -->
-    <!-- Application Structure Plan: 
-         1. Header: Contextualizes the narrative (Migration/Gentrification).
-         2. Interactive Floor Plan: Central navigation hub. Users select rooms to unlock specific narrative segments and data.
-         3. Dynamic Content Panel: Updates based on room selection, showing text snippets + specific visualizations.
-         4. Thematic Analysis Section: Comparative charts (Sensory & Perception) aggregating the data.
-         5. Historical Deep Dive: Specific focus on the Malcolm X encounter.
-         Why this structure? The story is rooted in "place". Navigating via the house structure reinforces the theme of "leaving home" and allows non-linear exploration of memories attached to physical spaces. -->
-    <!-- Visualization & Content Choices:
-         1. Radar Chart: Goal: Inform/Contrast. Method: Sensory Profile. Justification: Visualizes the stark difference between the "public" front rooms (wax, air freshener) and "private" back rooms (rum, thyme).
-         2. Bar Chart: Goal: Compare. Method: Perception Gap. Justification: Contrasts the Agent's utilitarian valuation vs. Alfonse's emotional valuation of the same spaces.
-         3. Interactive Timeline (Text-based): Goal: Change. Method: Highlighted textual flow. Justification: Tracks the encounter with Malcolm X.
-         4. Confirming NO SVG graphics used. NO Mermaid JS used. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="antialiased selection:bg-amber-100 selection:text-amber-900">
+<body>
 
-    <!-- Header Section -->
-    <header class="w-full bg-white border-b border-stone-200 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-stone-800 tracking-tight">Exterior Paint</h1>
-                <p class="text-sm md:text-base text-stone-500 italic mt-1">Memory, Migration, and the House on Marshall Street</p>
-            </div>
-            <button onclick="resetApp()" class="text-xs md:text-sm bg-stone-100 hover:bg-stone-200 text-stone-600 px-3 py-1 rounded transition-colors">
-                Reset View
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
-
-        <!-- Introduction -->
-        <section class="max-w-3xl mx-auto text-center space-y-4">
-            <h2 class="text-xl font-bold text-stone-700">The Estate Agent is Optimistic</h2>
-            <p class="text-stone-600 leading-relaxed">
-                Alfonse Maynard is selling his home. But a house is more than bricks and mortar; it is a repository of history. 
-                Use the interactive floor plan below to explore the intersection of <strong>gentrification</strong>, <strong>personal memory</strong>, and a <strong>cross-cultural encounter</strong> that defined a life.
-                Explore the contrast between the "For Sale" product and the lived experience.
+    <!-- OVERLAY: THE UNEXCAVATED HISTORY -->
+    <div id="mystery-overlay">
+        <div class="text-center mb-12 px-6 max-w-xl">
+            <h1 class="text-amber-50 text-4xl md:text-5xl font-bold mb-4 tracking-tight">Exterior Paint</h1>
+            <p class="text-amber-200/50 uppercase tracking-[0.3em] text-xs mb-8">Click the door to enter the narrative</p>
+            <div class="h-px w-24 bg-amber-200/20 mx-auto mb-8"></div>
+            <p class="text-stone-400 text-sm italic serif px-4">
+                "The estate agent moves the net curtains aside... A proper garden, he says."
             </p>
-        </section>
+        </div>
+        
+        <div class="door-frame" onclick="unlockSite()">
+            <div id="door-asset" class="door-leaf"></div>
+        </div>
+    </div>
 
-        <!-- Interactive Core: House & Narrative Split -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Left Column: The House Map (Navigation) -->
-            <div class="lg:col-span-5 space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
-                    <h3 class="text-lg font-bold text-stone-800 mb-4 border-b pb-2">1. Explore the Property</h3>
-                    <p class="text-sm text-stone-500 mb-6">Select a space to reveal its story and sensory profile.</p>
-                    
-                    <!-- Stylized House Grid -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Front Window -->
-                        <button id="btn-front" onclick="loadRoom('front')" class="room-btn col-span-2 h-24 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 group">
-                            <span class="font-bold text-stone-700 group-hover:text-amber-700">The Front Window</span>
-                            <span class="text-xs text-stone-400 mt-1">Watching the Street</span>
-                        </button>
-                        
-                        <!-- Hallway -->
-                        <button id="btn-hall" onclick="loadRoom('hall')" class="room-btn h-32 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 group">
-                            <span class="font-bold text-stone-700 group-hover:text-amber-700">The Hallway</span>
-                            <span class="text-xs text-stone-400 mt-1">Narrow & Polished</span>
-                        </button>
-                        
-                        <!-- Sitting Rooms -->
-                        <button id="btn-sitting" onclick="loadRoom('sitting')" class="room-btn h-32 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 group">
-                            <span class="font-bold text-stone-700 group-hover:text-amber-700">Two Sitting Rooms</span>
-                            <span class="text-xs text-stone-400 mt-1">No-one sits here</span>
-                        </button>
-                        
-                        <!-- Back Room -->
-                        <button id="btn-back" onclick="loadRoom('back')" class="room-btn col-span-2 h-40 rounded-lg border-2 border-stone-200 bg-stone-50 flex flex-col items-center justify-center p-2 relative overflow-hidden group">
-                            <div class="absolute inset-0 bg-amber-50 opacity-0 group-hover:opacity-50 transition-opacity"></div>
-                            <span class="font-bold text-stone-700 group-hover:text-amber-700 relative z-10">The Back Room</span>
-                            <span class="text-xs text-stone-400 mt-1 relative z-10">Sanctuary & Music</span>
-                        </button>
-                        
-                        <!-- Garden -->
-                        <button id="btn-garden" onclick="loadRoom('garden')" class="room-btn col-span-2 h-24 rounded-lg border-2 border-stone-200 bg-green-50/50 flex flex-col items-center justify-center p-2 group">
-                            <span class="font-bold text-stone-700 group-hover:text-green-700">The Garden & Shed</span>
-                            <span class="text-xs text-stone-400 mt-1">A "Proper" Garden</span>
-                        </button>
-                    </div>
-                </div>
+    <!-- MODAL OVERLAY -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
 
-                <!-- Key Stat Box -->
-                <div class="bg-stone-800 text-white p-6 rounded-xl shadow-lg">
-                    <h4 class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Historical Context</h4>
-                    <p class="serif-font text-lg italic">"Nine days after he walked on Marshall Street, Malcolm X is killed."</p>
-                    <div class="mt-4 flex items-center justify-between text-sm text-stone-400">
-                        <span>Timeline:</span>
-                        <span class="text-white font-mono">1965</span>
-                    </div>
+    <!-- MAIN APP WRAPPER -->
+    <div id="main-wrapper">
+        
+        <!-- STICKY NAVIGATION -->
+        <nav class="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50">
+            <div class="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
+                <span class="font-bold text-red-700 tracking-tighter text-lg">MARSHALL ST.</span>
+                <div class="flex gap-6 text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500">
+                    <a href="#intro" class="hover:text-red-700 transition">Intro</a>
+                    <a href="#characters" class="hover:text-red-700 transition">Characters</a>
+                    <a href="#history" class="hover:text-red-700 transition">History</a>
+                    <a href="#semiotics" class="hover:text-red-700 transition">Symbols</a>
+                    <a href="#solidarity" class="hover:text-red-700 transition">Solidarity</a>
                 </div>
             </div>
+        </nav>
 
-            <!-- Right Column: Narrative & Visualization (Dynamic) -->
-            <div class="lg:col-span-7 space-y-6">
+        <!-- HERO SECTION -->
+        <header id="intro" class="bg-slate-900 text-white py-24 px-6 border-b-8 border-red-700">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-red-500 text-xs font-bold uppercase tracking-[0.5em] mb-4">A Literary & Historical Analysis</h2>
+                <h1 class="text-4xl md:text-7xl font-bold mb-6">The Cartography of Belonging</h1>
+                <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto italic leading-relaxed serif">
+                    Exploring migration, memory, and the cross-cultural "exterior" of Kit de Waal's Smethwick.
+                </p>
+            </div>
+        </header>
+
+        <!-- CHARACTERS SECTION -->
+        <section id="characters" class="py-24 px-6 bg-white">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-16 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">The Inhabitants</h2>
+                    <p class="text-slate-500 max-w-2xl mx-auto">People are not furniture polish. The narrative centers on characters navigating the friction between commercial value and personal history.</p>
+                </div>
                 
-                <!-- Dynamic Content Card -->
-                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden min-h-[600px] flex flex-col">
-                    <div class="bg-stone-50 px-6 py-4 border-b border-stone-200 flex justify-between items-center">
-                        <h3 id="panel-title" class="text-xl font-bold text-stone-800 serif-font">Select a Room</h3>
-                        <span id="panel-badge" class="px-2 py-1 bg-stone-200 text-stone-600 text-xs rounded-full font-bold uppercase">Overview</span>
-                    </div>
-                    
-                    <div class="p-6 flex-grow flex flex-col">
-                        <!-- Text Content -->
-                        <div id="panel-content" class="text-stone-600 leading-7 mb-8 custom-scroll overflow-y-auto max-h-[300px] pr-2">
-                            <p class="italic text-stone-400 text-center mt-10">
-                                Click on a room in the floor plan to reveal Alfonse's memories, the sensory details of the space, and the clash between the past and the "For Sale" present.
-                            </p>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Alfonse -->
+                    <div class="char-card bg-slate-50 p-8 rounded-3xl border border-slate-100" onclick="showModal('alfonse')">
+                        <div class="bg-red-700 w-12 h-12 rounded-2xl rotate-3 flex items-center justify-center text-white font-bold text-xl mb-6 shadow-lg">A</div>
+                        <h3 class="text-xl font-bold mb-3">Alfonse Maynard</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-6">A St. Kitts migrant who represents the Windrush generation's struggle. His identity is defined by a "heart-to-heart" with Malcolm X, giving him the agency to "stand up and be a man."</p>
+                        <div class="pt-4 border-t border-slate-200">
+                            <span class="text-[10px] font-bold text-red-600 uppercase tracking-widest">Core Value: Dignity</span>
                         </div>
+                    </div>
 
-                        <!-- Divider -->
-                        <div class="w-full h-px bg-stone-100 my-4"></div>
+                    <!-- Lillian -->
+                    <div class="char-card bg-slate-50 p-8 rounded-3xl border border-slate-100" onclick="showModal('lillian')">
+                        <div class="bg-slate-800 w-12 h-12 rounded-2xl -rotate-3 flex items-center justify-center text-white font-bold text-xl mb-6 shadow-lg">L</div>
+                        <h3 class="text-xl font-bold mb-3">Lillian (Lily)</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-6">The late wife who crossed the racial divide of the 1960s. Her absence is the "ghost" in the house that the agent seeks to scrub away with beeswax and air freshener.</p>
+                        <div class="pt-4 border-t border-slate-200">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Core Value: Memory</span>
+                        </div>
+                    </div>
 
-                        <!-- Visualization Section within the card -->
-                        <div class="mt-auto">
-                            <h4 id="chart-title" class="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Analytical View</h4>
-                            <!-- Chart Container -->
+                    <!-- Baxter -->
+                    <div class="char-card bg-slate-50 p-8 rounded-3xl border border-slate-100" onclick="showModal('baxter')">
+                        <div class="bg-slate-400 w-12 h-12 rounded-2xl rotate-6 flex items-center justify-center text-white font-bold text-xl mb-6 shadow-lg">B</div>
+                        <h3 class="text-xl font-bold mb-3">Mike Baxter</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-6">The agent of gentrification. He views the "red door" as a sales tactic rather than a symbol of survival. He represents the contemporary flattening of history into "assets."</p>
+                        <div class="pt-4 border-t border-slate-200">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Core Value: Utility</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HISTORY SECTION -->
+        <section id="history" class="py-24 px-6 bg-slate-50">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">The Crucible of 1965</h2>
+                        <p class="text-slate-600 mb-8 leading-relaxed">
+                            The story is anchored in the historical reality of Smethwick's Marshall Street—a place Malcolm X called a "hotbed of racial tension." The Council's attempt to buy houses to enforce segregation serves as the antagonistic force that Alfonse must resist.
+                        </p>
+                        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6">Institutional Exclusion Index</h4>
                             <div class="chart-container">
-                                <canvas id="dynamicChart"></canvas>
+                                <canvas id="barChart"></canvas>
                             </div>
+                        </div>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="p-8 bg-red-700 text-white rounded-[2rem] shadow-2xl relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl">"</div>
+                            <h3 class="text-2xl font-bold mb-4 italic serif">"He spoke heart to heart."</h3>
+                            <p class="text-sm opacity-90 leading-relaxed">The encounter with Malcolm X is the narrative's fulcrum. It transforms Alfonse's relationship with the street from one of fear to one of defiant ownership.</p>
+                        </div>
+                        <div class="p-8 bg-slate-900 text-slate-300 rounded-[2rem]">
+                            <h3 class="text-white font-bold mb-2">The Colour Bar</h3>
+                            <p class="text-sm leading-relaxed">The "Blue Gates" pub represents the physical borders of 1960s Britain. Lillian’s romance with Alfonse was an act of "border-crossing" in a segregated landscape.</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Thematic Analysis Section: Gentrification & Identity -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-stone-200">
-            <div class="space-y-4">
-                <h3 class="text-2xl font-bold text-stone-800 serif-font">The Gentrification Index</h3>
-                <p class="text-stone-600">
-                    The estate agent, Mike Baxter, evaluates the house based on market potential and "curb appeal." Alfonse evaluates it through the lens of history and belonging. This chart contrasts the "Agent's View" (Changes needed) vs. "Alfonse's View" (Preservation).
-                </p>
-                <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-                    <div class="chart-container h-64">
-                        <canvas id="gentrificationChart"></canvas>
-                    </div>
+        <!-- SEMIOTICS SECTION -->
+        <section id="semiotics" class="py-24 px-6 bg-white">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">The Semiotics of the Red Door</h2>
+                    <p class="text-slate-500 max-w-2xl mx-auto">Analyzing how the same physical object carries different meanings for the agent and the inhabitant.</p>
                 </div>
-            </div>
-            
-            <div class="space-y-4">
-                <h3 class="text-2xl font-bold text-stone-800 serif-font">The Scent of Memory</h3>
-                <p class="text-stone-600">
-                    The text uses sensory details to distinguish between the "show house" prepared for strangers and the "real home." The Radar chart below maps the olfactory landscape of <em>Marshall Street</em>.
-                </p>
-                <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-                    <div class="chart-container h-64">
-                        <canvas id="sensoryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- The Malcolm X Encounter Section -->
-        <section class="bg-stone-900 text-stone-100 rounded-2xl overflow-hidden shadow-2xl mt-12">
-            <div class="grid grid-cols-1 md:grid-cols-12">
-                <div class="md:col-span-5 bg-amber-700 p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-                    <h2 class="text-3xl md:text-4xl font-bold serif-font text-white mb-4 relative z-10">The Encounter</h2>
-                    <div class="w-16 h-1 bg-white mb-6 relative z-10"></div>
-                    <p class="text-amber-100 italic relative z-10">
-                        "He tells Lily all about it, how he and Malcolm spoke heart to heart and Alfonse found the strength to stand up and be a man."
-                    </p>
-                </div>
-                <div class="md:col-span-7 p-8 md:p-12 space-y-6">
-                    <h3 class="text-xl font-bold text-amber-500 uppercase tracking-wider">Topics of Migration & Identity</h3>
-                    <p class="text-stone-300 leading-relaxed">
-                        In a story about selling a house, the sudden appearance of <strong>Malcolm X</strong> acts as a powerful anchor for Alfonse's identity. It connects the local (Marshall Street) with the global struggle for civil rights and dignity.
-                    </p>
-                    
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold mt-1">1</div>
-                            <div class="ml-4">
-                                <h4 class="font-bold text-white">The Visit</h4>
-                                <p class="text-sm text-stone-400">Malcolm X walked on Marshall Street. A moment of extraordinary history in an ordinary setting.</p>
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="bg-slate-50 p-6 md:p-12 rounded-[3rem]">
+                        <div class="chart-container">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="space-y-10">
+                        <div class="flex gap-6">
+                            <div class="flex-shrink-0 w-12 h-12 bg-red-100 text-red-700 rounded-full flex items-center justify-center font-bold">1</div>
+                            <div>
+                                <h4 class="font-bold text-xl mb-2">Exterior Paint vs. Interior Truth</h4>
+                                <p class="text-slate-600 text-sm leading-relaxed">Baxter sees the red door as a way to hide a "shoddy porch." Alfonse sees the paint under his nails as the labor of belonging. The door is a skin that protects the "smell of people" inside.</p>
                             </div>
                         </div>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold mt-1">2</div>
-                            <div class="ml-4">
-                                <h4 class="font-bold text-white">The Impact</h4>
-                                <p class="text-sm text-stone-400">Nine days before his death. The encounter gave Alfonse "strength." A legacy that outlasts the house.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-xs font-bold mt-1">3</div>
-                            <div class="ml-4">
-                                <h4 class="font-bold text-white">The Tribute</h4>
-                                <p class="text-sm text-stone-400">The toast. Alfonse raises his glass of white rum to "Lily... and Malcolm." Linking his personal love with his cultural hero.</p>
+                        <div class="flex gap-6">
+                            <div class="flex-shrink-0 w-12 h-12 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center font-bold">2</div>
+                            <div>
+                                <h4 class="font-bold text-xl mb-2">The Scent of Memory</h4>
+                                <p class="text-slate-600 text-sm leading-relaxed">The front rooms are a stage set for the white gaze (beeswax/air freshener). The back room is the Caribbean heart—smelling of thyme, pepper, and white rum.</p>
                             </div>
                         </div>
                     </div>
@@ -271,260 +384,332 @@
             </div>
         </section>
 
-    </main>
+        <!-- SOLIDARITY SECTION -->
+        <section id="solidarity" class="py-24 px-6 bg-slate-900 text-white">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-5xl font-bold mb-8">Evolution: The New Solidarity</h2>
+                <p class="text-slate-400 mb-12 text-lg leading-relaxed serif italic">
+                    "The tea is sweet and spicy, boiled with cardamom... a shared adoption of British markers as a point of commonality."
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="solidarity-item p-8 border border-slate-800 rounded-2xl bg-slate-800/30" onclick="showModal('tea')">
+                        <div class="text-3xl mb-4">☕</div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-red-500">Tea & Spice</span>
+                    </div>
+                    <div class="solidarity-item p-8 border border-slate-800 rounded-2xl bg-slate-800/30" onclick="showModal('walls')">
+                        <div class="text-3xl mb-4">🏠</div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-red-500">Shared Walls</span>
+                    </div>
+                    <div class="solidarity-item p-8 border border-slate-800 rounded-2xl bg-slate-800/30" onclick="showModal('history')">
+                        <div class="text-3xl mb-4">📜</div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-red-500">Oral History</span>
+                    </div>
+                    <div class="solidarity-item p-8 border border-slate-800 rounded-2xl bg-slate-800/30" onclick="showModal('resilience')">
+                        <div class="text-3xl mb-4">✊</div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-red-500">Resilience</span>
+                    </div>
+                </div>
+                <p class="mt-16 text-slate-500 text-sm">Alfonse and Mr. Kang represent a shift from the isolated struggles of the 1960s to a hybrid multicultural present.</p>
+            </div>
+        </section>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-stone-200 mt-12 py-8">
-        <div class="max-w-6xl mx-auto px-4 text-center text-stone-400 text-sm">
-            <p>&copy; 2024 Interactive Narrative based on "Exterior Paint".</p>
-        </div>
-    </footer>
+        <!-- FOOTER -->
+        <footer class="bg-white py-16 px-6 text-center border-t border-slate-100">
+            <p class="text-slate-400 text-[10px] uppercase tracking-[0.4em] font-bold mb-4">Made by jrmfrbg</p>
+            <p class="text-slate-400 text-xs serif italic">Hosted on jrmServer</p>
+        </footer>
 
-    <!-- JavaScript Logic -->
+    </div>
+
     <script>
-        // State Management
-        let currentRoomId = null;
-        let dynamicChartInstance = null;
-
-        // Data Store (Source: ExteriorPaint.txt)
-        const roomData = {
-            'front': {
-                title: "The Front Window",
-                badge: "Observation Point",
-                text: `<p>Alfonse Maynard had been watching from the front room window for fifteen minutes. He saw Baxter, the estate agent, pull up in his white car. From this vantage point, Alfonse observes the changes in his neighborhood—the "uncut hedge at number eighty-five," the "shoddy porch at forty-nine," and the "permanent satellite dishes on every house but his own."</p>
-                       <p class="mt-4">This boundary between the inside and outside marks the contrast between Alfonse's preserved world and the shifting demographics of Marshall Street.</p>`,
-                chartLabel: "Visual Clutter (Satellite Dishes)",
-                chartData: [1, 10], // Alfonse vs Neighbors
-                chartType: 'bar',
-                chartTitle: "Satellite Dishes: Alfonse vs. The Street"
+        // MODAL CONTENT DATABASE
+        const modalData = {
+            alfonse: {
+                title: 'Alfonse Maynard',
+                content: `
+                    <div class="modal-header">
+                        <h3>Alfonse Maynard</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>A St. Kitts migrant who arrived in England seeking opportunity, only to encounter the brutal segregation of 1960s Smethwick. Alfonse embodies the Windrush generation's resilience and the cost of belonging.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "Alfonse Maynard had been watching from the front room window for fifteen minutes. Saw Baxter pull up in his white car... Baxter made notes on his clipboard and tapped the side of his head with his biro, then he rang the bell."
+                    </div>
+                    <div class="modal-text">
+                        <p><span class="modal-highlight">The Turning Point:</span> When Alfonse encounters Malcolm X walking down Marshall Street, it becomes the pivot of his life. He finds the courage to claim his dignity, rescue Lillian from her mother's prejudice, and declare their marriage.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'Malcolm X,' his heart says over and over, 'Malcolm X.' ... Do it, Alfonse. Go and do it."
+                    </div>
+                    <div class="modal-text">
+                        <p>His decision to paint the front door red is not cosmetic—it is an act of defiance, a claim on the house, and a memorial to Lillian. The paint under his nails carries the weight of survival.</p>
+                    </div>
+                `
             },
-            'hall': {
-                title: "The Hallway",
-                badge: "Transition Zone",
-                text: `<p>Alfonse leads the agent through the "narrow hall." It is a space of transit, not residence. The sensory details here are crucial: it smells of "air freshener" and "beeswax."</p>
-                       <p class="mt-4">These are artificial, preservative smells. They represent the effort to present a "good face" to the world, masking the reality of life for the sake of the sale. It is a space of performance for the intruder (Baxter).</p>`,
-                chartLabel: "Scent Artificiality",
-                chartData: [90, 20], // Artificial vs Natural
-                chartType: 'doughnut',
-                chartTitle: "Scent Profile: Artificial vs. Natural"
+            lillian: {
+                title: 'Lillian (Lily)',
+                content: `
+                    <div class="modal-header">
+                        <h3>Lillian (Lily)</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>Lillian is the ghost in Alfonse's house—not a haunting, but a presence. A white woman who defied the colour bar by falling in love across the racial divide, she paid the price for her transgression.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "The difference is Lillian only says it with her mouth, not with her eyes." — Working at The Blue Gate
+                    </div>
+                    <div class="modal-text">
+                        <p>She works as a barmaid at The Blue Gate pub, where racial segregation is enforced. When she returns Alfonse's hat, their worlds tilt together. What begins as a whispered apology becomes a defiant love that reshapes both their lives.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'I'm going to tell her. We're not doing anything wrong.' 'No, no,' he says. 'Not yet.'"
+                    </div>
+                    <div class="modal-text">
+                        <p><span class="modal-highlight">Her Legacy:</span> Though deceased when the story opens, Lillian's fingerprints are everywhere—in the new kitchen she insisted on, in Alfonse's decision to open his home to the community, in the memory of her love that sustains him through grief.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'I love you, Alfonse,' she said just before she died. ... When the 'For Sale' sign goes up people will come... but they will never know her and the gentle touch of her hand."
+                    </div>
+                `
             },
-            'sitting': {
-                title: "Two Sitting Rooms",
-                badge: "Unused Space",
-                text: `<p>These are "rooms where no-one sits." They smell of "unopened windows." This highlights a common theme in the homes of that generation—the 'best room' reserved for guests who rarely come.</p>
-                       <p class="mt-4">The agent sees potential ("knock the two downstairs rooms into one like Mr. Kang did"), representing the modern desire for open-plan living. Alfonse sees distinct spaces filled with the memory of a "dead woman" (Lily), spaces that the new owners will inevitably erase.</p>`,
-                chartLabel: "Occupancy Frequency",
-                chartData: [5, 95], // Usage vs Vacancy
-                chartType: 'pie',
-                chartTitle: "Room Utilization (Alfonse's Era)"
+            baxter: {
+                title: 'Mike Baxter',
+                content: `
+                    <div class="modal-header">
+                        <h3>Mike Baxter — The Estate Agent</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>Baxter Byrne is the agent of gentrification, tasked with converting lived experience into market value. He moves through Alfonse's house like a predator assessing prey, seeing only assets to exploit.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'Presentation is everything, Mr. Maynard,' he says as he shakes hands again with Alfonse on the doorstep and flicks his eye towards the peeling green paint on the front door. 'Red sells.'"
+                    </div>
+                    <div class="modal-text">
+                        <p>For Baxter, the house is abstracted into components: double glazing, central heating, master bedroom. The emotion, the memory, the love—these are obstacles to be removed with air freshener and a fresh coat of paint.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'On behalf of Baxter Byrne, I would like to offer my condolences... and Alfonse realises that for Baxter, death is a professional boon.'"
+                    </div>
+                    <div class="modal-text">
+                        <p><span class="modal-highlight">The Contrast:</span> While Alfonse paints red to honor Lillian and claim his space, Baxter prescribes red as a sales tactic. Both are using the same color, but for opposite purposes—one sacred, one commercial.</p>
+                    </div>
+                `
             },
-            'back': {
-                title: "The Back Room",
-                badge: "The Heart",
-                text: `<p>This is where Alfonse lives. In contrast to the front, here "thyme and pepper have settled in the nap of his dralon armchair." There are "sticky spots of coffee and rum."</p>
-                       <p class="mt-4">It contains his treasures: a "display cabinet for his wife," a "footstool for his bad foot," and a "black cd player for Nat King Cole." This room <em>is</em> Alfonse. It is warm, messy, and aromatic—everything the estate agent's clipboard cannot capture.</p>`,
-                chartLabel: "Comfort Metrics",
-                chartData: [95, 80, 90, 30], // Rum, Music, Memory, Cleanliness
-                chartLabels: ["White Rum", "Nat King Cole", "Memories of Lily", "Tidiness"],
-                chartType: 'radar',
-                chartTitle: "The Atmosphere of the Back Room"
+            tea: {
+                title: 'Tea & Spice',
+                content: `
+                    <div class="modal-header">
+                        <h3>☕ Tea & Spice — Solidarity Across Difference</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>In a story of segregation and exclusion, the moment Alfonse and Mr. Kang share tea becomes an act of revolutionary gentleness. It represents the possibility of cross-cultural community forged through simple generosity.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "Mr. Kang brings them both a cup of tea, sweet and spicy, boiled with cardamom and spice, thick with condensed milk. 'You can't have tea without biscuits, my friend,' he says and whips the lid off an enamel tin eight inches wide."
+                    </div>
+                    <div class="modal-text">
+                        <p>The biscuits—Jammy Dodgers, custard creams, pink iced rings—are markers of British domesticity. But they are shared across a fence, across cultures, across the otherwise segregated Marshall Street. Mr. Kang's comment captures this perfectly:</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'If they make them, we buy them,' says Mr. Kang."
+                    </div>
+                    <div class="modal-text">
+                        <p>This is the answer to the crude xenophobia of 1960s Britain. Not resistance through anger, but resilience through hospitality. When Alfonse later hosts Mr. Kang and his family at the same table where Lillian once laid treats for guests, the red door opens onto a new kind of belonging.</p>
+                    </div>
+                `
             },
-            'garden': {
-                title: "The Garden & Shed",
-                badge: "Lily's Domain",
-                text: `<p>The estate agent calls it "a proper garden." He notes the shed. But for Alfonse, the garden is likely where he feels Lily's absence most acutely. The agent taps the window frame, calculating value.</p>
-                       <p class="mt-4">Alfonse remembers: "They will open Lily’s cupboards... but they will never know her and the gentle touch of her hand." The garden is part of the property value to Baxter, but hallowed ground to Alfonse.</p>`,
-                chartLabel: "Value Perception",
-                chartData: [80, 20], // Economic vs Emotional
-                chartType: 'polarArea',
-                chartTitle: "Value: Market vs. Memory"
+            walls: {
+                title: 'Shared Walls',
+                content: `
+                    <div class="modal-header">
+                        <h3>🏠 Shared Walls — Community in Proximity</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>Marshall Street is both a battleground and a sanctuary. The terraced houses share walls, and in sharing walls, residents share vulnerability. The street becomes the stage where Alfonse's private love affair becomes public defiance.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "Curtains move in the front windows of all the houses along Marshall Street. Women up and down the road... would talk for many years about the time a black man fronted Lillian's mother and got the better of her."
+                    </div>
+                    <div class="modal-text">
+                        <p>The shared walls amplify both prejudice and solidarity. When Alfonse rings Lillian's mother's doorbell to collect his bride, every neighbor witnesses it. The street becomes a chronicle of resistance.</p>
+                    </div>
+                    <div class="modal-text">
+                        <p><span class="modal-highlight">By the story's end:</span> Alfonse plans to invite Mr. Kang and his family into his home—the same intimate act that once sparked scandal now becomes an invitation to break bread, to sit in the front room until "it smells of people and not furniture polish."</p>
+                    </div>
+                    <div class="modal-quote">
+                        "He will buy a nice tin of biscuits from the supermarket and orange squash for the children... they can all sit in the front room, sit and sit until it smells of people and not furniture polish."
+                    </div>
+                `
+            },
+            history: {
+                title: 'Oral History',
+                content: `
+                    <div class="modal-header">
+                        <h3>📜 Oral History — Memory as Resistance</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>The story is narrated through memory, through the details that officials would erase: Lillian's sewing room, the dralon armchair scented with thyme and pepper, Nat King Cole on the stereo. These are the details that market valuations cannot quantify.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'It's a good thing to think about the past, to think about Lily.'"
+                    </div>
+                    <div class="modal-text">
+                        <p>Alfonse's encounter with Malcolm X becomes folklore on Marshall Street—a story told and retold, a moment that shifts the fabric of the community. Malcolm X's presence is ephemeral, but his impact is eternal in Alfonse's heart.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'Malcolm X,' his heart says over and over... When Malcolm X goes back to the group... Alfonse can't hear what he says but he knows it will be in the paper, it will be in the news, it will be all over the world."
+                    </div>
+                    <div class="modal-text">
+                        <p>The story itself—"Exterior Paint"—is an act of oral history, capturing the lives of people whose names would not appear in property records or census data. By centering Alfonse's memory, the narrative insists that his life matters.</p>
+                    </div>
+                `
+            },
+            resilience: {
+                title: 'Resilience',
+                content: `
+                    <div class="modal-header">
+                        <h3>✊ Resilience — Strength in Survival</h3>
+                    </div>
+                    <div class="modal-text">
+                        <p>Resilience in this story is not loud triumph but quiet endurance. It is Alfonse smoking cigarette after cigarette when Lillian leaves him, then rising to claim her back. It is choosing to paint the door red despite—or because of—the pain.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "Alfonse sleeps not one single minute of that night... He smokes cigarette after cigarette until his mouth begs for water."
+                    </div>
+                    <div class="modal-text">
+                        <p>But resilience also means choosing not to repeat the cycle of isolation. Alfonse's decision to open his home to Mr. Kang and his family shows that survival is not just personal—it is communal. Breaking bread across cultural lines is an act of resistance against the forces that tried to keep them apart.</p>
+                    </div>
+                    <div class="modal-quote">
+                        "'You go home, Alfonse,' said Lillian, 'and I'll finish at The Blue Gate... I'll slip out when no-one's looking.' He nods, understanding both her courage and the danger that surrounds them."
+                    </div>
+                    <div class="modal-text">
+                        <p><span class="modal-highlight">Final Image:</span> Alfonse, holding a glass of white rum, toasting to Lillian and Malcolm X. In that moment, grief becomes memory, and memory becomes a form of power—the power to refuse forgetting, to refuse erasure, to refuse the reduced valuation that Baxter offered.</p>
+                    </div>
+                `
             }
         };
 
-        // Navigation Logic
-        function loadRoom(roomId) {
-            // Update UI State
-            document.querySelectorAll('.room-btn').forEach(btn => btn.classList.remove('active-room', 'border-amber-500', 'bg-amber-50'));
-            document.getElementById(`btn-${roomId}`).classList.add('active-room', 'border-amber-500', 'bg-amber-50');
+        // FUNCTION: SHOW MODAL
+        function showModal(key) {
+            const modal = document.getElementById('modal-overlay');
+            const body = document.getElementById('modal-body');
             
-            currentRoomId = roomId;
-            const data = roomData[roomId];
-
-            // Update Text Content
-            const titleEl = document.getElementById('panel-title');
-            const badgeEl = document.getElementById('panel-badge');
-            const contentEl = document.getElementById('panel-content');
-            const chartTitleEl = document.getElementById('chart-title');
-
-            // Fade out effect
-            contentEl.style.opacity = '0';
-            
-            setTimeout(() => {
-                titleEl.textContent = data.title;
-                badgeEl.textContent = data.badge;
-                badgeEl.className = "px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded-full font-bold uppercase";
-                contentEl.innerHTML = data.text;
-                chartTitleEl.textContent = data.chartTitle;
-                
-                // Update Visualization
-                updateDynamicChart(data);
-                
-                contentEl.style.opacity = '1';
-            }, 200);
-        }
-
-        function resetApp() {
-            location.reload();
-        }
-
-        // Chart 1: Dynamic Content Chart
-        function updateDynamicChart(data) {
-            const ctx = document.getElementById('dynamicChart').getContext('2d');
-            
-            if (dynamicChartInstance) {
-                dynamicChartInstance.destroy();
+            if (modalData[key]) {
+                body.innerHTML = modalData[key].content;
+                modal.classList.add('active');
             }
+        }
 
-            let config = {
-                type: data.chartType,
+        // FUNCTION: CLOSE MODAL
+        function closeModal(event) {
+            const modal = document.getElementById('modal-overlay');
+            modal.classList.remove('active');
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // FUNCTION: UNLOCK EXPERIENCE
+        function unlockSite() {
+            const door = document.getElementById('door-asset');
+            const overlay = document.getElementById('mystery-overlay');
+            const wrapper = document.getElementById('main-wrapper');
+
+            // 1. Swing the door open
+            door.classList.add('door-open');
+
+            // 2. Fade out the brown box after the animation begins
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                
+                // 3. Clean up overlay and show content
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    wrapper.classList.add('visible-wrapper');
+                    document.body.style.overflow = 'auto'; // Re-enable scroll
+                    
+                    // Initialize the charts only when visible for proper sizing
+                    initCharts();
+                }, 1000);
+            }, 800);
+        }
+
+        // FUNCTION: INITIALIZE CHARTS
+        function initCharts() {
+            // Bar Chart: History
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
                 data: {
-                    labels: data.chartLabels || (data.chartType === 'bar' ? ['Alfonse', 'Neighbors'] : ['Artificial', 'Natural']),
+                    labels: ['Pub Access', 'Housing (Council)', 'Voting Rights', 'Social Stigma'],
                     datasets: [{
-                        label: data.chartLabel,
-                        data: data.chartData,
-                        backgroundColor: [
-                            'rgba(217, 119, 6, 0.6)', // Amber
-                            'rgba(71, 85, 105, 0.6)', // Slate
-                            'rgba(22, 163, 74, 0.6)', // Green
-                            'rgba(147, 51, 234, 0.6)' // Purple
-                        ],
-                        borderColor: [
-                            'rgba(217, 119, 6, 1)',
-                            'rgba(71, 85, 105, 1)',
-                            'rgba(22, 163, 74, 1)',
-                            'rgba(147, 51, 234, 1)'
-                        ],
-                        borderWidth: 1
+                        label: 'Intensity of Exclusion',
+                        data: [88, 98, 75, 92],
+                        backgroundColor: '#b91c1c',
+                        borderRadius: 8
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: data.chartType !== 'bar',
-                            position: 'bottom'
-                        }
-                    },
-                    scales: data.chartType === 'bar' || data.chartType === 'radar' ? {
-                        y: { beginAtZero: true }
-                    } : {}
-                }
-            };
-
-            // Specific adjustments for Radar
-            if(data.chartType === 'radar') {
-                 config.options.scales = {
-                    r: {
-                        angleLines: {
-                            display: false
-                        },
-                        suggestedMin: 0,
-                        suggestedMax: 100
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { beginAtZero: true, max: 100, ticks: { font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 } } }
                     }
-                };
-            }
+                }
+            });
 
-            dynamicChartInstance = new Chart(ctx, config);
-        }
-
-        // Chart 2: Gentrification Index (Comparison)
-        function initGentrificationChart() {
-            const ctx = document.getElementById('gentrificationChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
+            // Radar Chart: Perception
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
                 data: {
-                    labels: ['Open Plan', 'New Roof', 'Modern Decor', 'Original Features'],
+                    labels: ['Market Price', 'Historical Memory', 'Sanctuary', 'Identity', 'Renovation'],
                     datasets: [
                         {
-                            label: "Agent's Priority",
-                            data: [90, 85, 80, 20],
-                            backgroundColor: 'rgba(71, 85, 105, 0.7)', // Slate
+                            label: 'Mike Baxter (Agent)',
+                            data: [100, 5, 10, 20, 95],
+                            borderColor: '#94a3b8',
+                            backgroundColor: 'rgba(148, 163, 184, 0.2)',
+                            pointBackgroundColor: '#94a3b8',
+                            borderWidth: 2
                         },
                         {
-                            label: "Alfonse's Priority",
-                            data: [10, 30, 10, 100],
-                            backgroundColor: 'rgba(217, 119, 6, 0.7)', // Amber
+                            label: 'Alfonse (Inhabitant)',
+                            data: [15, 100, 100, 95, 10],
+                            borderColor: '#b91c1c',
+                            backgroundColor: 'rgba(185, 28, 28, 0.2)',
+                            pointBackgroundColor: '#b91c1c',
+                            borderWidth: 2
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true }
+                    scales: { 
+                        r: { 
+                            suggestedMin: 0, 
+                            suggestedMax: 100, 
+                            ticks: { display: false },
+                            pointLabels: { font: { size: 11, weight: 'bold' } }
+                        } 
                     },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.raw + '%';
-                                }
-                            }
-                        }
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { font: { size: 10 } }
+                        } 
                     }
                 }
             });
         }
-
-        // Chart 3: Sensory Radar (Static Analysis)
-        function initSensoryChart() {
-            const ctx = document.getElementById('sensoryChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Chemical/Clean', 'Beeswax', 'Spices (Thyme)', 'Alcohol (Rum)', 'Dust/Old'],
-                    datasets: [{
-                        label: 'Front House (Show)',
-                        data: [90, 85, 10, 0, 10],
-                        fill: true,
-                        backgroundColor: 'rgba(71, 85, 105, 0.2)',
-                        borderColor: 'rgb(71, 85, 105)',
-                        pointBackgroundColor: 'rgb(71, 85, 105)',
-                    }, {
-                        label: 'Back House (Real)',
-                        data: [10, 20, 95, 90, 60],
-                        fill: true,
-                        backgroundColor: 'rgba(217, 119, 6, 0.2)',
-                        borderColor: 'rgb(217, 119, 6)',
-                        pointBackgroundColor: 'rgb(217, 119, 6)',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    elements: {
-                        line: { borderWidth: 3 }
-                    },
-                    scales: {
-                        r: {
-                            angleLines: { display: true },
-                            suggestedMin: 0,
-                            suggestedMax: 100
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initGentrificationChart();
-            initSensoryChart();
-            // Load default room
-            loadRoom('front');
-        });
-
     </script>
 </body>
 </html>
