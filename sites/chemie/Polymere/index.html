@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymer Dynamics | Molecular Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #020617; 
+            background: radial-gradient(circle at top right, #0f172a 0%, #020617 100%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -20px rgba(16, 185, 129, 0.2);
+        }
+        .emerald-glow {
+            box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        .bg-element {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.1;
+            filter: blur(40px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-slate-100 p-6 md:p-12 font-sans selection:bg-emerald-500/30">
+
+<!-- Background Aesthetics -->
+<div class="bg-element w-96 h-96 bg-emerald-500 rounded-full top-[-10%] left-[-10%] animate-pulse"></div>
+<div class="bg-element w-[30rem] h-[30rem] bg-blue-600 rounded-full bottom-[-10%] right-[-10%] opacity-[0.05]"></div>
+
+<div class="max-w-6xl mx-auto">
+    <header class="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                </div>
+                <h1 class="text-4xl font-black text-white tracking-tight">Polymer <span class="text-emerald-500">Matrix</span></h1>
+            </div>
+            <p data-i18n="subtitle" class="text-slate-400 font-medium text-lg">Molecular Interaction & Phase Simulation</p>
+        </div>
+        <div class="flex flex-col md:items-end gap-3">
+            <div class="flex gap-2 mb-2">
+                <button onclick="setLanguage('de')" id="lang-de" class="text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-emerald-500 transition-all uppercase tracking-widest">DE</button>
+                <button onclick="setLanguage('en')" id="lang-en" class="text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-700 hover:border-emerald-500 transition-all uppercase tracking-widest">EN</button>
+            </div>
+            <div class="text-left md:text-right">
+                <span data-i18n="built-for" class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">Built for</span>
+                <p class="text-xs font-mono font-bold text-slate-300">Chemie Hospifach Flamm • Group Project</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Project Description -->
+    <div class="mb-16 max-w-3xl">
+        <h2 data-i18n="about-title" class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-4">Project Overview</h2>
+        <p data-i18n="about-text" class="text-xl text-slate-300 leading-relaxed font-light">
+            This interactive platform explores the fundamental structural differences between the three main classes of plastics. 
+            By simulating molecular chains and their cross-links, we visualize how macroscopic properties like elasticity and 
+            thermal stability emerge from microscopic interactions.
+        </p>
+    </div>
+
+    <!-- Navigation Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        <!-- Elastomer -->
+        <a href="https://jorim.xyz/sites/chemie/Polymere/Elastomer/index.html" class="glass-panel p-8 rounded-3xl group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
+            <div class="mb-6 flex justify-between items-start">
+                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Class I</span>
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:border-emerald-500/50 transition-colors">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+            </div>
+            <h3 data-i18n="title-elastomer" class="text-2xl font-bold mb-3 text-white">Elastomers</h3>
+            <p data-i18n="desc-elastomer" class="text-sm text-slate-400 leading-relaxed mb-6">
+                Weakly cross-linked chains that exhibit entropic recovery. Explore how random coils enable high elasticity.
+            </p>
+            <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-widest">
+                <span data-i18n="launch">Launch Sim</span>
+                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+        </a>
+
+        <!-- Thermoplastic -->
+        <a href="https://jorim.xyz/sites/chemie/Polymere/thermoplastic/thermoplastic.html" class="glass-panel p-8 rounded-3xl group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors"></div>
+            <div class="mb-6 flex justify-between items-start">
+                <span class="text-[10px] font-black uppercase tracking-widest text-blue-400">Class II</span>
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.99 7.99 0 01-2.343 5.657z"/></svg>
+                </div>
+            </div>
+            <h3 data-i18n="title-thermoplastic" class="text-2xl font-bold mb-3 text-white">Thermoplasts</h3>
+            <p data-i18n="desc-thermoplastic" class="text-sm text-slate-400 leading-relaxed mb-6">
+                Linear chains held by secondary bonds. Observe the transition between glassy and molten states.
+            </p>
+            <div class="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase tracking-widest">
+                <span data-i18n="launch">Launch Sim</span>
+                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+        </a>
+
+        <!-- Duroplast -->
+        <a href="https://jorim.xyz/sites/chemie/Polymere/thermoplastic/thermoplastic.html" class="glass-panel p-8 rounded-3xl group relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-colors"></div>
+            <div class="mb-6 flex justify-between items-start">
+                <span class="text-[10px] font-black uppercase tracking-widest text-red-400">Class III</span>
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:border-red-500/50 transition-colors">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                </div>
+            </div>
+            <h3 data-i18n="title-duroplast" class="text-2xl font-bold mb-3 text-white">Duroplasts</h3>
+            <p data-i18n="desc-duroplast" class="text-sm text-slate-400 leading-relaxed mb-6">
+                Dense 3D covalent networks. Discover why these materials remain rigid even at high temperatures.
+            </p>
+            <div class="flex items-center gap-2 text-red-400 font-bold text-xs uppercase tracking-widest">
+                <span data-i18n="launch">Launch Sim</span>
+                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+        </a>
+    </div>
+
+    <footer class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+        <div>© 2026 jrmfrbg • Jorim Stern</div>
+        <div class="flex gap-6">
+            <a href="https://jorim.xyz" target="_blank" class="text-emerald-500/50 hover:text-emerald-400 transition-colors">code by Jorim Stern</a>
+            <span class="text-emerald-500/50">Physical Core V1.2</span>
+        </div>
+    </footer>
+</div>
+
+<script>
+    const translations = {
+        en: {
+            "subtitle": "Molecular Interaction & Phase Simulation",
+            "built-for": "Built for",
+            "about-title": "Project Overview",
+            "about-text": "This interactive platform explores the fundamental structural differences between the three main classes of plastics. By simulating molecular chains and their cross-links, we visualize how macroscopic properties like elasticity and thermal stability emerge from microscopic interactions.",
+            "title-elastomer": "Elastomers",
+            "desc-elastomer": "Weakly cross-linked chains that exhibit entropic recovery. Explore how random coils enable high elasticity.",
+            "title-thermoplastic": "Thermoplasts",
+            "desc-thermoplastic": "Linear chains held by secondary bonds. Observe the transition between glassy and molten states.",
+            "title-duroplast": "Duroplasts",
+            "desc-duroplast": "Dense 3D covalent networks. Discover why these materials remain rigid even at high temperatures.",
+            "launch": "Launch Simulation"
+        },
+        de: {
+            "subtitle": "Molekulare Interaktion & Phasensimulation",
+            "built-for": "Gebaut für",
+            "about-title": "Projektübersicht",
+            "about-text": "Diese interaktive Plattform erforscht die fundamentalen strukturellen Unterschiede zwischen den drei Hauptklassen der Kunststoffe. Durch die Simulation molekularer Ketten und ihrer Vernetzungen visualisieren wir, wie makroskopische Eigenschaften wie Elastizität und thermische Stabilität aus mikroskopischen Interaktionen entstehen.",
+            "title-elastomer": "Elastomere",
+            "desc-elastomer": "Schwach vernetzte Ketten mit Entropie-Elastizität. Entdecke, wie statistische Knäuel eine hohe Dehnbarkeit ermöglichen.",
+            "title-thermoplastic": "Thermoplaste",
+            "desc-thermoplastic": "Lineare Ketten, die durch Nebenvalenzkräfte zusammengehalten werden. Beobachte den Übergang zwischen glasig und geschmolzen.",
+            "title-duroplast": "Duroplaste",
+            "desc-duroplast": "Dicht vernetzte 3D-Kovalenznetzwerke. Erfahre, warum diese Materialien auch bei Hitze formstabil bleiben.",
+            "launch": "Simulation starten"
+        }
+    };
+
+    function setLanguage(lang) {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerHTML = translations[lang][key];
+        });
+        
+        // Update button styles
+        document.getElementById('lang-de').className = `text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all uppercase tracking-widest ${lang === 'de' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 hover:border-emerald-500 text-slate-400'}`;
+        document.getElementById('lang-en').className = `text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all uppercase tracking-widest ${lang === 'en' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 hover:border-emerald-500 text-slate-400'}`;
+        
+        localStorage.setItem('polymer-lang', lang);
+    }
+
+    window.onload = () => {
+        const savedLang = localStorage.getItem('polymer-lang') || 'en';
+        setLanguage(savedLang);
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elastomer Dynamics | Dark Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #020617; overflow: hidden; touch-action: none; }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            border: 1px solid #1e293b;
+            border-radius: 2rem;
+            box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.1);
+            overflow: hidden;
+        }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #1e293b; border-radius: 3px; }
+        input[type=range]::-webkit-slider-thumb { 
+            height: 22px; width: 22px; border-radius: 50%; 
+            background: #10b981; cursor: pointer; -webkit-appearance: none; 
+            margin-top: -8px; border: 3px solid #020617; 
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); 
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+    </style>
+</head>
+<body class="text-slate-100 p-4 md:p-8 font-sans">
+
+<div class="max-w-6xl mx-auto">
+    <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-white tracking-tight">Elastomer <span class="text-emerald-500">Matrix</span></h1>
+            <p data-i18n="subtitle" class="text-slate-400 font-medium">Molecular Entropic Simulation by Jorim Stern</p>
+        </div>
+        <div class="flex flex-col md:items-end gap-2">
+            <div class="flex gap-2 mb-2">
+                <button onclick="setLanguage('de')" id="lang-de" class="text-[10px] font-bold px-2 py-1 rounded border border-slate-700 hover:border-emerald-500 transition-colors">DE</button>
+                <button onclick="setLanguage('en')" id="lang-en" class="text-[10px] font-bold px-2 py-1 rounded border border-slate-700 hover:border-emerald-500 transition-colors">EN</button>
+            </div>
+            <div class="text-left md:text-right">
+                <span data-i18n="built-for" class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">Gebaut für / Build for</span>
+                <p id="sim-status" class="text-xs font-mono font-bold text-slate-300">Chemie Hospifach Flamm</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Control Interface -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-8">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <label data-i18n="thermal-energy" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Thermal Energy</label>
+                        <span id="label-heat" class="text-xs font-mono font-bold text-orange-400 bg-orange-400/10 px-2 py-1 rounded">20%</span>
+                    </div>
+                    <input type="range" id="input-heat" min="5" max="100" value="20" class="w-full">
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <label data-i18n="tensile-stress" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tensile Stress</label>
+                        <span id="label-force" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">0%</span>
+                    </div>
+                    <input type="range" id="input-force" min="0" max="100" value="0" class="w-full">
+                </div>
+            </div>
+
+            <!-- Dynamic Observation Tab -->
+            <div class="bg-emerald-500/5 border border-emerald-500/20 text-white p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <h3 data-i18n="live-state" class="text-emerald-400 text-xs font-black uppercase tracking-widest">Live State</h3>
+                </div>
+                
+                <div class="min-h-[120px]">
+                    <p id="behavior-text" data-i18n="analyzing" class="text-sm text-slate-300 leading-relaxed italic">
+                        Analyzing molecular configuration...
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800 grid grid-cols-2 gap-4">
+                    <div>
+                        <span data-i18n="chain-state" class="block text-[8px] text-slate-500 font-bold uppercase">Chain State</span>
+                        <span id="stat-flex" class="text-xs font-bold text-emerald-100">---</span>
+                    </div>
+                    <div>
+                        <span data-i18n="entropy-level" class="block text-[8px] text-slate-500 font-bold uppercase">Entropy Level</span>
+                        <span id="stat-entropy" class="text-xs font-bold text-emerald-100">---</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="initSim()" data-i18n="reset-btn" class="w-full py-4 bg-slate-900 border border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all">
+                Reset Molecular Grid
+            </button>
+        </div>
+
+        <!-- Simulation Viewport -->
+        <div class="lg:col-span-3">
+            <div class="canvas-container">
+                <canvas id="simCanvas"></canvas>
+            </div>
+            
+            <!-- Consolidated Theory Box -->
+            <div class="mt-6 glass-panel p-6 rounded-2xl border border-emerald-500/10">
+                <h3 data-i18n="theory-title" class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-3">The Physics of Elastomers</h3>
+                <p data-i18n="theory-p1" class="text-xs text-slate-300 leading-relaxed">
+                    Elastomers work through <span class="text-emerald-400">Entropic Recovery</span>. Unlike metals, which stretch by pulling atoms apart, elastomers stretch by <span class="text-emerald-400">uncoiling</span> long-chain molecules. In their natural state, thermal energy causes chains to vibrate and tangle into "random coils"—a state of high entropy (disorder). 
+                </p>
+                <p data-i18n="theory-p2" class="text-xs text-slate-300 leading-relaxed mt-3">
+                    When you apply stress, you force these chains to align, creating order and lowering entropy. The "snap back" occurs because the molecules naturally want to return to their messy, high-entropy coiled state through thermal agitation. This interconnected matrix is held together by sparse <span class="text-emerald-400">covalent cross-links</span>, which prevent the individual chains from sliding past each other permanently, ensuring the material returns to its original shape.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * ELASTOMER NETWORK ENGINE V4.3 - THE THEORY UPDATE
+ */
+
+const translations = {
+    en: {
+        "subtitle": "Molecular Entropic Simulation by Jorim Stern",
+        "built-for": "Built for",
+        "thermal-energy": "Thermal Energy",
+        "tensile-stress": "Tensile Stress",
+        "live-state": "Live State",
+        "analyzing": "Analyzing molecular configuration...",
+        "chain-state": "Chain State",
+        "entropy-level": "Entropy Level",
+        "reset-btn": "Reset Molecular Grid",
+        "theory-title": "The Physics of Elastomers",
+        "theory-p1": 'Elastomers work through <span class="text-emerald-400">Entropic Recovery</span>. Unlike metals, which stretch by pulling atoms apart, elastomers stretch by <span class="text-emerald-400">uncoiling</span> long-chain molecules. In their natural state, thermal energy causes chains to vibrate and tangle into "random coils"—a state of high entropy (disorder).',
+        "theory-p2": 'When you apply stress, you force these chains to align, creating order and lowering entropy. The "snap back" occurs because the molecules naturally want to return to their messy, high-entropy coiled state through thermal agitation. This interconnected matrix is held together by sparse <span class="text-emerald-400">covalent cross-links</span>, which prevent the individual chains from sliding past each other permanently, ensuring the material returns to its original shape.',
+        "obs-high-force": "Tensile load is high. Most random coils are uncoiled and aligned. System entropy is at its minimum, creating high internal restorative tension.",
+        "obs-partial-force": "Partial alignment detected. The cross-links are under tension as chains move away from their high-entropy rest positions.",
+        "obs-high-heat": "High thermal energy is maximizing chain vibration. The matrix acts as a highly active entropic engine, coiling up almost instantly.",
+        "obs-low-heat": "Low thermal energy is inducing a 'glassy' state. The chains lack the kinetic energy required to snap back quickly to coils.",
+        "obs-default": "Thermal motion dominates. Chains are reverting to random tangled configurations, maximizing entropy through coiling.",
+        "stat-min": "MINIMAL",
+        "stat-decreasing": "DECREASING",
+        "stat-fluid": "FLUID",
+        "stat-glassy": "GLASSY",
+        "stat-rubbery": "RUBBERY",
+        "stat-max": "MAXIMUM"
+    },
+    de: {
+        "subtitle": "Molekulare Entropie-Simulation von Jorim Stern",
+        "built-for": "Gebaut für",
+        "thermal-energy": "Thermische Energie",
+        "tensile-stress": "Zugspannung",
+        "live-state": "Live-Zustand",
+        "analyzing": "Analysiere Molekülkonfiguration...",
+        "chain-state": "Kettenzustand",
+        "entropy-level": "Entropieniveau",
+        "reset-btn": "Molekülgitter zurücksetzen",
+        "theory-title": "Die Physik der Elastomere",
+        "theory-p1": 'Elastomere funktionieren durch <span class="text-emerald-400">Entropie-Elastizität</span>. Im Gegensatz zu Metallen, die sich durch das Auseinanderziehen von Atomen dehnen, dehen sich Elastomere durch das Entknäueln langkettiger Moleküle. Im natürlichen Zustand führt thermische Energie dazu, dass Ketten vibrieren und sich zu "statistischen Knäueln" verfangen – einem Zustand hoher Entropie (Unordnung).',
+        "theory-p2": 'Wenn Spannung angelegt wird, werden diese Ketten zur Ausrichtung gezwungen, was Ordnung schafft und die Entropie senkt. Das "Zurückschnellen" geschieht, weil die Moleküle durch thermische Bewegung natürlich in ihren ungeordneten, hochentropischen Knäuelzustand zurückkehren wollen. Diese vernetzte Matrix wird durch vereinzelte <span class="text-emerald-400">kovalente Vernetzungsstellen</span> zusammengehalten, die verhindern, dass die einzelnen Ketten dauerhaft aneinander vorbeigleiten, wodurch das Material in seine ursprüngliche Form zurückkehrt.',
+        "obs-high-force": "Die Zugbelastung ist hoch. Die meisten statistischen Knäuel sind entrollt und ausgerichtet. Die Systementropie ist minimal, was eine hohe interne Rückstellspannung erzeugt.",
+        "obs-partial-force": "Teilweise Ausrichtung erkannt. Die Vernetzungsstellen stehen unter Spannung, da sich die Ketten von ihren hochentropischen Ruhepositionen entfernen.",
+        "obs-high-heat": "Hohe thermische Energie maximiert die Kettenvibration. Die Matrix wirkt als hochaktive Entropie-Maschine und knäuelt sich fast augenblicklich auf.",
+        "obs-low-heat": "Niedrige thermische Energie induziert einen 'glasartigen' Zustand. Den Ketten fehlt die kinetische Energie, um schnell wieder zu Knäueln zurückzuschnellen.",
+        "obs-default": "Thermische Bewegung dominiert. Die Ketten kehren in zufällig verschlungene Konfigurationen zurück und maximieren die Entropie durch Verknäuelung.",
+        "stat-min": "MINIMAL",
+        "stat-decreasing": "ABNEHMEND",
+        "stat-fluid": "FLÜSSIG",
+        "stat-glassy": "GLASIG",
+        "stat-rubbery": "GUMMIARTIG",
+        "stat-max": "MAXIMAL"
+    }
+};
+
+let currentLang = 'en';
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.innerHTML = translations[lang][key];
+    });
+    
+    // Update active button style
+    document.getElementById('lang-de').className = `text-[10px] font-bold px-2 py-1 rounded border transition-colors ${lang === 'de' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 hover:border-emerald-500'}`;
+    document.getElementById('lang-en').className = `text-[10px] font-bold px-2 py-1 rounded border transition-colors ${lang === 'en' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 hover:border-emerald-500'}`;
+}
+
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+const heatIn = document.getElementById('input-heat');
+const forceIn = document.getElementById('input-force');
+
+let width, height, dpr = window.devicePixelRatio || 1;
+let particles = [];
+let constraints = [];
+
+class Particle {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.oldX = x; this.oldY = y;
+    }
+
+    update(heat, force) {
+        const precisionForce = (force / 100) * 0.15;
+        const friction = 0.9 + (heat * 0.0008); 
+        
+        let vx = (this.x - this.oldX) * Math.min(friction, 0.985);
+        let vy = (this.y - this.oldY) * Math.min(friction, 0.985);
+
+        const jitter = heat * 0.007;
+        vx += (Math.random() - 0.5) * jitter;
+        vy += (Math.random() - 0.5) * jitter;
+
+        const centerX = width / 2;
+        vx += (this.x - centerX) * (precisionForce * 0.004);
+
+        // Entropic Recall logic
+        vx += (centerX - this.x) * 0.0008 * (1 - (precisionForce * 5));
+
+        this.oldX = this.x; this.oldY = this.y;
+        this.x += vx; this.y += vy;
+
+        const b = 25;
+        if (this.x < b) this.x = b; if (this.x > width - b) this.x = width - b;
+        if (this.y < b) this.y = b; if (this.y > height - b) this.y = height - b;
+    }
+}
+
+class Constraint {
+    constructor(p1, p2, len, stiffness) {
+        this.p1 = p1; this.p2 = p2;
+        this.len = len;
+        this.stiffness = stiffness;
+    }
+    solve() {
+        const dx = this.p2.x - this.p1.x;
+        const dy = this.p2.y - this.p1.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 0.1;
+        const currentHeat = parseInt(heatIn.value);
+        const tempStiff = this.stiffness * (1 - (currentHeat * 0.0022));
+        
+        const diff = (this.len - d) / d;
+        const mx = dx * diff * tempStiff;
+        const my = dy * diff * tempStiff;
+        
+        this.p1.x -= mx; this.p1.y -= my;
+        this.p2.x += mx; this.p2.y += my;
+    }
+}
+
+function initSim() {
+    particles = [];
+    constraints = [];
+    
+    const chainCount = 8;
+    const particlesPerChain = 24;
+    const segmentLen = 14;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    const chains = [];
+
+    for (let i = 0; i < chainCount; i++) {
+        let x = centerX - 80 + (Math.random() * 160);
+        let y = centerY - 140 + (i * 40);
+        let prev = null;
+        const currentChain = [];
+        
+        for (let j = 0; j < particlesPerChain; j++) {
+            const p = new Particle(x, y);
+            particles.push(p);
+            currentChain.push(p);
+            if (prev) constraints.push(new Constraint(prev, p, segmentLen, 0.75));
+            x += (Math.random() - 0.5) * 30;
+            y += (Math.random() - 0.5) * 30;
+            prev = p;
+        }
+        chains.push(currentChain);
+    }
+
+    for (let i = 0; i < chainCount - 1; i++) {
+        for(let k = 0; k < 3; k++) {
+            const r1 = Math.floor(Math.random() * particlesPerChain);
+            const r2 = Math.floor(Math.random() * particlesPerChain);
+            constraints.push(new Constraint(chains[i][r1], chains[i+1][r2], 26, 0.45));
+        }
+    }
+}
+
+function updateObserver(heat, force) {
+    const obsText = document.getElementById('behavior-text');
+    const flexText = document.getElementById('stat-flex');
+    const entropyText = document.getElementById('stat-entropy');
+
+    if (force > 70) {
+        obsText.innerText = translations[currentLang]["obs-high-force"];
+        entropyText.innerText = translations[currentLang]["stat-min"];
+    } else if (force > 15) {
+        obsText.innerText = translations[currentLang]["obs-partial-force"];
+        entropyText.innerText = translations[currentLang]["stat-decreasing"];
+    } else {
+        if (heat > 75) {
+            obsText.innerText = translations[currentLang]["obs-high-heat"];
+            flexText.innerText = translations[currentLang]["stat-fluid"];
+        } else if (heat < 30) {
+            obsText.innerText = translations[currentLang]["obs-low-heat"];
+            flexText.innerText = translations[currentLang]["stat-glassy"];
+        } else {
+            obsText.innerText = translations[currentLang]["obs-default"];
+            flexText.innerText = translations[currentLang]["stat-rubbery"];
+        }
+        entropyText.innerText = translations[currentLang]["stat-max"];
+    }
+}
+
+function loop() {
+    const h = parseInt(heatIn.value);
+    const f = parseInt(forceIn.value);
+    
+    document.getElementById('label-heat').innerText = h + "%";
+    document.getElementById('label-force').innerText = f + "%";
+    
+    updateObserver(h, f);
+
+    const iterations = 10;
+    for (let i = 0; i < iterations; i++) {
+        constraints.forEach(c => c.solve());
+
+        let avgX = 0, avgY = 0;
+        particles.forEach(p => { avgX += p.x; avgY += p.y; });
+        avgX /= particles.length;
+        avgY /= particles.length;
+        
+        const driftX = (width / 2) - avgX;
+        const driftY = (height / 2) - avgY;
+        
+        particles.forEach(p => {
+            p.x += driftX * 0.15;
+            p.y += driftY * 0.15;
+        });
+    }
+
+    particles.forEach(p => p.update(h, f));
+
+    ctx.clearRect(0, 0, width, height);
+    
+    ctx.beginPath();
+    constraints.forEach(c => {
+        ctx.moveTo(c.p1.x, c.p1.y);
+        ctx.lineTo(c.p2.x, c.p2.y);
+    });
+    ctx.strokeStyle = "#1e293b";
+    ctx.lineWidth = 1.8;
+    ctx.globalAlpha = 0.8;
+    ctx.stroke();
+
+    ctx.globalAlpha = 1.0;
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3.8, 0, Math.PI*2);
+        ctx.fillStyle = "#10b981";
+        ctx.fill();
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "#10b981";
+        ctx.strokeStyle = "#020617";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    });
+    ctx.shadowBlur = 0;
+
+    requestAnimationFrame(loop);
+}
+
+function handleResize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    width = r.width; height = r.height;
+    canvas.width = width * dpr; canvas.height = height * dpr;
+    canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
+    ctx.scale(dpr, dpr);
+    initSim();
+}
+
+window.addEventListener('resize', handleResize);
+window.onload = () => { handleResize(); setLanguage('en'); loop(); };
+</script>
+</body>
+</html>
