@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NucleusBear Control</title>
+    <style>
+        body {
+            background: #0f172a; /* Deep dark blue */
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        /* The Glass Card */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+        h1 { font-weight: 300; letter-spacing: 2px; margin-bottom: 30px; }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.2); }
+        .btn-connect { background: #3b82f6; box-shadow: 0 0 15px #3b82f6; margin-bottom: 20px; }
+        .rainbow { background: linear-gradient(45deg, #ff0000, #ff00ff, #0000ff); }
+    </style>
+</head>
+<body>
+    <div class="glass-panel">
+        <h1>NucleusBear</h1>
+        <button class="btn btn-connect" onclick="connectBLE()">Connect Device</button>
+        <button class="btn rainbow" onclick="sendCommand('R')">Rainbow Mode</button>
+        <button class="btn" style="border: 1px solid #22c55e;" onclick="sendCommand('G')">Green</button>
+        <button class="btn" style="border: 1px solid #ef4444;" onclick="sendCommand('D')">Red</button>
+        <button class="btn" style="border: 1px solid #ffffff;" onclick="sendCommand('W')">Pure White</button>
+    </div>
+
+    <script>
+        let device, characteristic;
+        async function connectBLE() {
+            device = await navigator.bluetooth.requestDevice({
+                filters: [{ name: 'NucleusBear' }],
+                optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+            });
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+            characteristic = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+            alert("Connected to NucleusBear!");
+        }
+        async function sendCommand(cmd) {
+            if (characteristic) {
+                await characteristic.writeValue(new TextEncoder().encode(cmd));
+            }
+        }
+    </script>
+</body>
+</html>
