@@ -3,8 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jorim - Backend Developer</title>
+    <title>Jorim Stern</title>
+    <meta name="description" content="Jorim Stern — embedded systems student in Freiburg. Solar inverter test software, bidirectional power meters, stage technology.">
     <style>
+        :root {
+            --bg: #12141a;
+            --bg-alt: #181b22;
+            --border: #262a33;
+            --text: #d7dbe2;
+            --dim: #8d95a3;
+            --faint: #626b7a;
+            --accent: #e8a54b;
+            --sans: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,641 +25,353 @@
         }
 
         body {
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            background: #1e1e1e;
-            color: #d4d4d4;
-            overflow-x: hidden;
-        }
-
-        .vscode-container {
-            display: flex;
-            height: 100vh;
-            background: #1e1e1e;
-        }
-
-        .sidebar {
-            width: 300px;
-            background: #252526;
-            border-right: 1px solid #3c3c3c;
-            padding: 20px 0;
-            overflow-y: auto;
-        }
-
-        .explorer-header {
-            padding: 10px 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #cccccc;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .file-tree {
-            list-style: none;
-        }
-
-        .file-item {
-            padding: 8px 20px;
-            cursor: pointer;
-            border-left: 3px solid transparent;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-        }
-
-        .file-item:hover {
-            background: #2a2d2e;
-        }
-
-        .file-item.active {
-            background: #1e1e1e;
-            border-left-color: #007acc;
-            color: #ffffff;
-        }
-
-        .file-icon {
-            margin-right: 8px;
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
             font-size: 16px;
+            line-height: 1.65;
         }
 
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        .wrap {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 22px;
         }
 
-        .tab-bar {
-            background: #2d2d30;
-            border-bottom: 1px solid #3c3c3c;
-            display: flex;
-            align-items: center;
-        }
-
-        .tab {
-            padding: 12px 20px;
-            background: #1e1e1e;
-            border-right: 1px solid #3c3c3c;
-            display: flex;
-            align-items: center;
-            font-size: 13px;
-        }
-
-        .tab-icon {
-            margin-right: 8px;
-            color: #007acc;
-        }
-
-        .editor {
-            flex: 1;
-            padding: 20px;
-            background: #1e1e1e;
-            overflow-y: auto;
-        }
-
-        .code-content {
-            line-height: 1.6;
-            font-size: 14px;
-            padding-left: 20px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .comment {
-            color: #6a9955;
-        }
-
-        .keyword {
-            color: #569cd6;
-        }
-
-        .string {
-            color: #ce9178;
-        }
-
-        .function {
-            color: #dcdcaa;
-        }
-
-        .type {
-            color: #4ec9b0;
-        }
-
-        .variable {
-            color: #9cdcfe;
-        }
-
-        .header {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #4fc3f7;
-        }
-
-        .typing-text {
-            display: inline-block;
-            overflow: hidden;
-            border-right: 2px solid #007acc;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 50% { border-color: #007acc; }
-            51%, 100% { border-color: transparent; }
-        }
-
-        .project-card {
-            background: #252526;
-            border: 1px solid #3c3c3c;
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-            border-color: #007acc;
-        }
-
-        .project-title {
-            color: #4fc3f7;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .project-tech {
-            color: #ce9178;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-
-        .project-links {
-            margin-top: 15px;
-        }
-
-        .project-link {
-            color: #007acc;
+        a {
+            color: var(--accent);
             text-decoration: none;
-            margin-right: 15px;
-            font-size: 13px;
-            transition: color 0.2s ease;
         }
 
-        .project-link:hover {
-            color: #4fc3f7;
+        a:hover {
             text-decoration: underline;
         }
 
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        /* ---------- header ---------- */
+
+        header {
+            padding: 56px 0 12px;
         }
 
-        .tech-category {
-            background: #252526;
-            border: 1px solid #3c3c3c;
-            border-radius: 6px;
-            padding: 15px;
+        h1 {
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        .tech-category h3 {
-            color: #4fc3f7;
-            margin-bottom: 10px;
-            font-size: 16px;
+        .sub {
+            color: var(--dim);
+            margin-top: 4px;
         }
 
-        .tech-list {
+        nav {
+            margin-top: 26px;
+            padding: 14px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--dim);
+            font-size: 15px;
+        }
+
+        nav a:hover {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        /* ---------- sections ---------- */
+
+        section {
+            padding: 44px 0 8px;
+        }
+
+        h2 {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        section p {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        section p.dim, .dim {
+            color: var(--dim);
+        }
+
+        /* ---------- projects ---------- */
+
+        .project {
+            padding: 22px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .project:last-child {
+            border-bottom: none;
+        }
+
+        .project h3 {
+            font-size: 17px;
+            font-weight: 600;
+            font-family: var(--mono);
+        }
+
+        .project h3 .sep {
+            color: var(--faint);
+            font-weight: 400;
+        }
+
+        .project p {
+            margin: 6px 0 0;
+        }
+
+        .project .links {
+            margin-top: 8px;
+            font-size: 14.5px;
+        }
+
+        .project .links span {
+            color: var(--faint);
+            margin: 0 6px;
+        }
+
+        /* ---------- timeline ---------- */
+
+        .entry {
+            margin-bottom: 26px;
+        }
+
+        .entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .entry .what {
+            font-weight: 600;
+        }
+
+        .entry .where {
+            color: var(--dim);
+            font-size: 15px;
+        }
+
+        .entry .when {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--faint);
+        }
+
+        .entry .desc {
+            color: var(--dim);
+            font-size: 15px;
+            margin-top: 2px;
+        }
+
+        /* ---------- skills ---------- */
+
+        .skill-row {
+            display: flex;
+            gap: 14px;
+            padding: 7px 0;
+            font-size: 15px;
+        }
+
+        .skill-row .k {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--faint);
+            min-width: 150px;
+            padding-top: 2px;
+        }
+
+        .skill-row .v {
+            color: var(--text);
+        }
+
+        /* ---------- contact ---------- */
+
+        ul.contact {
             list-style: none;
         }
 
-        .tech-item {
-            color: #9cdcfe;
-            margin-bottom: 5px;
-            padding-left: 15px;
-            position: relative;
+        ul.contact li {
+            padding: 5px 0;
         }
 
-        .tech-item:before {
-            content: "▶";
-            position: absolute;
-            left: 0;
-            color: #007acc;
-            font-size: 10px;
+        ul.contact .note {
+            color: var(--dim);
+            font-size: 14.5px;
         }
 
-        .social-links {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
+        /* ---------- footer ---------- */
+
+        footer {
+            margin-top: 50px;
+            padding: 22px 0 40px;
+            border-top: 1px solid var(--border);
+            color: var(--faint);
+            font-size: 13.5px;
         }
 
-        .social-link {
-            color: #007acc;
-            text-decoration: none;
-            padding: 10px 15px;
-            background: #252526;
-            border: 1px solid #3c3c3c;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-        }
-
-        .social-link:hover {
-            background: #007acc;
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-            .vscode-container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                display: none;
-            }
-            
-            .tech-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .social-links {
-                flex-direction: column;
-            }
-        }
-
-        .experience-item {
-            background: #252526;
-            border-left: 3px solid #007acc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .experience-year {
-            color: #ce9178;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .experience-role {
-            color: #4fc3f7;
-            font-size: 16px;
-            margin: 5px 0;
-        }
-
-        .experience-company {
-            color: #9cdcfe;
-            font-size: 14px;
+        @media (max-width: 480px) {
+            header { padding-top: 40px; }
+            .skill-row { flex-direction: column; gap: 2px; }
         }
     </style>
 </head>
 <body>
-    <div class="vscode-container">
-        <div class="sidebar">
-            <div class="explorer-header">Portfolio Explorer</div>
-            <ul class="file-tree">
-                <li class="file-item active" data-section="about">
-                    <span class="file-icon">📄</span>
-                    about.js
-                </li>
-                <li class="file-item" data-section="experience">
-                    <span class="file-icon">🏢</span>
-                    experience.md
-                </li>
-                <li class="file-item" data-section="skills">
-                    <span class="file-icon">⚡</span>
-                    techstack.json
-                </li>
-                <li class="file-item" data-section="projects">
-                    <span class="file-icon">🚀</span>
-                    projects.cpp
-                </li>
-                <li class="file-item" data-section="contact">
-                    <span class="file-icon">📧</span>
-                    contact.go
-                </li>
-            </ul>
+
+<div class="wrap">
+
+    <header>
+        <h1>Jorim Stern</h1>
+        <p class="sub">Embedded systems student in Freiburg, Germany.</p>
+        <nav>
+            <a href="#projects">Projects</a>
+            <a href="#path">Path</a>
+            <a href="#skills">Skills</a>
+            <a href="#contact">Contact</a>
+            <a href="https://git.jorim.xyz/jorim">git.jorim.xyz/jorim</a>
+        </nav>
+    </header>
+
+    <section id="about">
+        <p>
+            I study Embedded Systems Engineering (B.Sc., first semester, winter term 2026/27) at the
+            Albert-Ludwigs-Universität Freiburg, Technische Fakultät. Before that I finished my Abitur in 2026.
+        </p>
+        <p>
+            Most of what I build on my own time sits somewhere between software and hardware: test software
+            for solar inverters, a fully open-source bidirectional power meter, firmware for 7-segment displays.
+            Energy measurement and solar technology are the common thread.
+        </p>
+        <p>
+            Besides that I work as a freelance stage technician, setting up lighting and sound systems for
+            live events — which turned out to be decent training for writing firmware that has to work the
+            first time. On the side I write backend tooling in Go and run my own servers.
+        </p>
+    </section>
+
+    <section id="projects">
+        <h2>Projects</h2>
+
+        <div class="project">
+            <h3>solar_inverter_tester_software</h3>
+            <p>
+                Embedded software for a solar inverter test system. It runs an inverter through its operating
+                states, acquires voltage, current and power data continuously and evaluates efficiency and
+                behavior — turning what used to be manual lab measurements into a repeatable automated test
+                procedure.
+            </p>
+            <p class="dim">C/C++ · measurement acquisition · automated test sequences</p>
+            <p class="links">
+                <a href="https://git.jorim.xyz/jorim">git.jorim.xyz/jorim</a>
+            </p>
         </div>
 
-        <div class="main-content">
-            <div class="tab-bar">
-                <div class="tab">
-                    <span class="tab-icon">📄</span>
-                    <span id="current-file">about.js</span>
-                </div>
-            </div>
-
-            <div class="editor">
-                <div class="code-content">
-                    <div class="section active" id="about">
-                        <div class="comment">// Backend Developer & Student from Germany</div>
-                        <br>
-                        <span class="keyword">const</span> <span class="variable">developer</span> = {<br>
-                        &nbsp;&nbsp;<span class="string">name</span>: <span class="string">"<span class="typing-text" id="typing-name"></span>"</span>,<br>
-                        &nbsp;&nbsp;<span class="string">title</span>: <span class="string">"<span class="typing-text" id="typing-title"></span>"</span>,<br>
-                        &nbsp;&nbsp;<span class="string">location</span>: <span class="string">"<span class="typing-text" id="typing-location"></span>"</span>,<br>
-                        &nbsp;&nbsp;<span class="string">education</span>: <span class="string">"<span class="typing-text" id="typing-education"></span>"</span>,<br>
-                        &nbsp;&nbsp;<span class="string">passion</span>: [<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"<span class="typing-text" id="typing-passion1"></span>"</span>,<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"<span class="typing-text" id="typing-passion2"></span>"</span>,<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"<span class="typing-text" id="typing-passion3"></span>"</span>,<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"<span class="typing-text" id="typing-passion4"></span>"</span><br>
-                        &nbsp;&nbsp;]<br>
-                        };<br>
-                        <br>
-                        <span class="comment">// <span class="typing-text" id="typing-motto"></span></span>
-                    </div>
-
-                    <div class="section" id="experience">
-                        <div class="comment"># <span class="typing-text" id="typing-exp-header"></span></div>
-                        <br>
-                        <div class="experience-item">
-                            <div class="experience-year">2024 - Present</div>
-                            <div class="experience-role"><span class="typing-text" id="typing-role1"></span></div>
-                            <div class="experience-company"><span class="typing-text" id="typing-company1"></span></div>
-                        </div>
-                        
-                        <div class="experience-item">
-                            <div class="experience-year">2023</div>
-                            <div class="experience-role"><span class="typing-text" id="typing-role2"></span></div>
-                            <div class="experience-company"><span class="typing-text" id="typing-company2"></span></div>
-                        </div>
-                        
-                        <br>
-                        <div class="comment">## <span class="typing-text" id="typing-exp-note"></span></div>
-                    </div>
-
-                    <div class="section" id="skills">
-                        <div class="comment">// <span class="typing-text" id="typing-tech-header"></span></div>
-                        <br>
-                        <span class="keyword">const</span> <span class="variable">techStack</span> = {<br>
-                        <div class="tech-grid">
-                            <div class="tech-category">
-                                <h3><span class="typing-text" id="typing-backend"></span></h3>
-                                <ul class="tech-list">
-                                    <li class="tech-item">Go</li>
-                                    <li class="tech-item">C++</li>
-                                    <li class="tech-item">C</li>
-                                    <li class="tech-item">.NET</li>
-                                </ul>
-                            </div>
-                            
-                            <div class="tech-category">
-                                <h3><span class="typing-text" id="typing-web"></span></h3>
-                                <ul class="tech-list">
-                                    <li class="tech-item">Blazor</li>
-                                    <li class="tech-item">Web Applications</li>
-                                </ul>
-                            </div>
-                            
-                            <div class="tech-category">
-                                <h3><span class="typing-text" id="typing-embedded"></span></h3>
-                                <ul class="tech-list">
-                                    <li class="tech-item">ESP32</li>
-                                    <li class="tech-item">Arduino</li>
-                                    <li class="tech-item">PlatformIO</li>
-                                </ul>
-                            </div>
-                            
-                            <div class="tech-category">
-                                <h3><span class="typing-text" id="typing-environment"></span></h3>
-                                <ul class="tech-list">
-                                    <li class="tech-item">Arch Linux</li>
-                                    <li class="tech-item">VS Code</li>
-                                    <li class="tech-item">Git</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <br>
-                        };<br>
-                    </div>
-
-                    <div class="section" id="projects">
-                        <div class="comment">/* <span class="typing-text" id="typing-projects-header"></span> */</div>
-                        <br>
-                        
-                        <div class="project-card">
-                            <div class="project-title"><span class="typing-text" id="typing-project1"></span></div>
-                            <div class="project-tech">C++ • ESP32 • MIDI • Real-time Systems</div>
-                            <p><span class="typing-text" id="typing-project1-desc"></span></p>
-                            <div class="project-links">
-                                <a href="https://github.com/jrmfrbg/modularMidiDriver" class="project-link" target="_blank">🔗 GitHub</a>
-                                <a href="https://github.com/jrmfrbg/modularMidiDriver/blob/main/README.md" class="project-link" target="_blank">📖 Documentation</a>
-                            </div>
-                        </div>
-
-                        <div class="project-card">
-                            <div class="project-title"><span class="typing-text" id="typing-project2"></span></div>
-                            <div class="project-tech">Embedded Systems • Power Management • IoT</div>
-                            <p><span class="typing-text" id="typing-project2-desc"></span></p>
-                            <div class="project-links">
-                                <a href="https://github.com/jrmfrbg/MeinLieberScholli" class="project-link" target="_blank">🔗 GitHub</a>
-                            </div>
-                        </div>
-
-                        <br>
-                        <span class="comment">// <span class="typing-text" id="typing-more-projects"></span></span>
-                    </div>
-
-                    <div class="section" id="contact">
-                        <div class="comment">// <span class="typing-text" id="typing-contact-header"></span></div>
-                        <br>
-                        <span class="keyword">package</span> main<br>
-                        <br>
-                        <span class="keyword">import</span> (<br>
-                        &nbsp;&nbsp;<span class="string">"fmt"</span><br>
-                        &nbsp;&nbsp;<span class="string">"net/url"</span><br>
-                        )<br>
-                        <br>
-                        <span class="keyword">func</span> <span class="function">main</span>() {<br>
-                        &nbsp;&nbsp;<span class="variable">contacts</span> := <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>{<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"email"</span>: <span class="string">"<span class="typing-text" id="typing-email"></span>"</span>,<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"github"</span>: <span class="string">"<span class="typing-text" id="typing-github"></span>"</span>,<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"instagram"</span>: <span class="string">"<span class="typing-text" id="typing-instagram"></span>"</span>,<br>
-                        &nbsp;&nbsp;}<br>
-                        <br>
-                        &nbsp;&nbsp;<span class="function">fmt</span>.<span class="function">Println</span>(<span class="string">"<span class="typing-text" id="typing-ready"></span>"</span>)<br>
-                        }<br>
-                        <br>
-                        <div class="social-links">
-                            <a href="mailto:stern@jorim.xyz" class="social-link">📧 Email</a>
-                            <a href="https://github.com/jrmfrbg" class="social-link" target="_blank">🐙 GitHub</a>
-                            <a href="https://instagram.com/jrm.frbg" class="social-link" target="_blank">📸 Instagram</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="project">
+            <h3>Mein-Lieber_Scholli! <span class="sep">— bidirectional power meter</span></h3>
+            <p>
+                A fully open-source power meter, hardware and software, built as an alternative to commercial
+                smart plugs like Shelly. It measures power flow in both directions, which makes it useful for
+                solar installations: you can see when you are feeding power back into the grid.
+            </p>
+            <p>
+                A TI MSP430 samples voltage and current with dedicated measurement ICs and computes true RMS
+                power. An ESP32 accumulates the energy, serves a web dashboard and exposes an HTTP/JSON API
+                for logging and statistics. Custom PCB, Schuko connectors, optional 7-segment display output.
+            </p>
+            <p class="dim">C (MSP430) · C++ (ESP32) · SPI · custom PCB</p>
+            <p class="links">
+                <a href="https://github.com/jrmfrbg/MeinLieberScholli">github.com/jrmfrbg/MeinLieberScholli</a>
+            </p>
         </div>
-    </div>
 
-    <script>
-        // Typing animation functionality
-        function typeText(element, text, speed = 75) {
-            return new Promise((resolve) => {
-                let i = 0;
-                element.textContent = '';
-                
-                function type() {
-                    if (i < text.length) {
-                        element.textContent += text.charAt(i);
-                        i++;
-                        setTimeout(type, speed);
-                    } else {
-                        resolve();
-                    }
-                }
-                
-                type();
-            });
-        }
+        <div class="project">
+            <h3>7SegmentWattageCounterESP32</h3>
+            <p>
+                ESP32 firmware driving a 7-segment display as a live wattage counter — the readout companion
+                to my power metering projects.
+            </p>
+            <p class="dim">C · ESP32</p>
+            <p class="links">
+                <a href="https://github.com/jrmfrbg/7SegmentWattageCounterESP32">github.com/jrmfrbg/7SegmentWattageCounterESP32</a>
+            </p>
+        </div>
 
-        // Typing animations for different sections
-        const typingAnimations = {
-            about: async () => {
-                await typeText(document.getElementById('typing-name'), 'Jorim', 38);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-title'), 'Backend Developer & Student', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-location'), 'Germany 🇩🇪', 25);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-education'), 'Abitur (graduating 2026)', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-passion1'), 'Systems Programming', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-passion2'), 'Embedded Development', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-passion3'), 'Open Source', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-passion4'), 'Stage Technology', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-motto'), 'Always learning, always building 🚀', 20);
-            },
-            
-            experience: async () => {
-                await typeText(document.getElementById('typing-exp-header'), 'Professional Experience', 25);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-role1'), 'Part-time Stage Technician', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-company1'), 'Freelance - Lighting & Sound Systems', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-role2'), 'Software Development Intern', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-company2'), 'Mercedes-Benz - Open Source Department', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-exp-note'), 'Currently pursuing Abitur while gaining real-world tech experience', 15);
-            },
-            
-            skills: async () => {
-                await typeText(document.getElementById('typing-tech-header'), 'Tech Stack Configuration', 25);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-backend'), 'Backend Development', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-web'), 'Web Development', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-embedded'), 'Embedded Systems', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-environment'), 'Environment', 20);
-            },
-            
-            projects: async () => {
-                await typeText(document.getElementById('typing-projects-header'), 'Featured Projects', 25);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-project1'), 'modularMidiDriver', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-project1-desc'), 'A modular MIDI driver system for embedded devices, focusing on real-time performance and extensibility.', 13);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-project2'), 'MeinLieberScholli!', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-project2-desc'), 'Bidirectional power meter system for monitoring and managing electrical power flow in both directions.', 13);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-more-projects'), 'More projects coming soon... 🚧', 20);
-            },
-            
-            contact: async () => {
-                await typeText(document.getElementById('typing-contact-header'), 'Let\'s connect and build something amazing!', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-email'), 'stern@jorim.xyz', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-github'), 'github.com/jrmfrbg', 20);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                await typeText(document.getElementById('typing-instagram'), 'instagram.com/jrm.frbg', 20);
-                await new Promise(resolve => setTimeout(resolve, 75));
-                await typeText(document.getElementById('typing-ready'), 'Ready to collaborate!', 20);
-            }
-        };
+        <div class="project">
+            <h3>modularMidiDriver</h3>
+            <p>
+                A modular MIDI driver system for embedded devices, focused on real-time behavior and
+                extensibility. Grew out of my stage technology work.
+            </p>
+            <p class="dim">Go · MIDI</p>
+            <p class="links">
+                <a href="https://github.com/jrmfrbg/modularMidiDriver">github.com/jrmfrbg/modularMidiDriver</a>
+            </p>
+        </div>
+    </section>
 
-        // File navigation functionality
-        function initFileNavigation() {
-            const fileItems = document.querySelectorAll('.file-item');
-            const sections = document.querySelectorAll('.section');
-            const currentFile = document.getElementById('current-file');
+    <section id="path">
+        <h2>Path</h2>
 
-            fileItems.forEach(item => {
-                item.addEventListener('click', async () => {
-                    // Update active file
-                    fileItems.forEach(f => f.classList.remove('active'));
-                    item.classList.add('active');
+        <div class="entry">
+            <span class="what">B.Sc. Embedded Systems Engineering</span>,
+            <span class="where">Albert-Ludwigs-Universität Freiburg, Technische Fakultät</span>
+            <div class="when">winter semester 2026/27 — present</div>
+            <div class="desc">First semester. Digital design, microcontrollers, signal processing —
+                the field where software meets hardware.</div>
+        </div>
 
-                    // Update current file tab
-                    const fileName = item.textContent.trim();
-                    currentFile.textContent = fileName;
+        <div class="entry">
+            <span class="what">Freelance stage technician</span>,
+            <span class="where">lighting &amp; sound systems for live events</span>
+            <div class="when">2024 — present</div>
+            <div class="desc">Setup and operation of lighting and sound systems under real-world conditions.</div>
+        </div>
 
-                    // Show corresponding section
-                    const sectionId = item.getAttribute('data-section');
-                    sections.forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    document.getElementById(sectionId).classList.add('active');
+        <div class="entry">
+            <span class="what">Software development internship</span>,
+            <span class="where">Mercedes-Benz, open source department</span>
+            <div class="when">2023</div>
+            <div class="desc">A look inside professional open-source development at a large automotive company.</div>
+        </div>
 
-                    // Clear all typing elements first
-                    document.querySelectorAll('.typing-text').forEach(el => {
-                        el.textContent = '';
-                    });
+        <div class="entry">
+            <span class="what">Abitur</span>,
+            <span class="where">Germany</span>
+            <div class="when">2026</div>
+        </div>
+    </section>
 
-                    // Start typing animation for the current section
-                    if (typingAnimations[sectionId]) {
-                        setTimeout(() => typingAnimations[sectionId](), 200);
-                    }
-                });
-            });
-        }
+    <section id="skills">
+        <h2>Skills</h2>
+        <div class="skill-row"><span class="k">embedded</span><span class="v">C, C++, ESP32, TI MSP430, Arduino, PlatformIO, SPI / I²C / UART</span></div>
+        <div class="skill-row"><span class="k">software</span><span class="v">Go, C# / .NET, Blazor, HTTP APIs, HTML / CSS</span></div>
+        <div class="skill-row"><span class="k">hardware</span><span class="v">custom PCBs, power metering, solar PV, SMD &amp; through-hole soldering</span></div>
+        <div class="skill-row"><span class="k">environment</span><span class="v">Arch Linux, Git, self-hosting, stage technology</span></div>
+    </section>
 
-        // Project card hover effects
-        function initProjectEffects() {
-            const projectCards = document.querySelectorAll('.project-card');
-            
-            projectCards.forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    card.style.borderColor = '#4fc3f7';
-                });
-                
-                card.addEventListener('mouseleave', () => {
-                    card.style.borderColor = '#3c3c3c';
-                });
-            });
-        }
+    <section id="contact">
+        <h2>Contact</h2>
+        <ul class="contact">
+            <li><a href="mailto:stern@jorim.xyz">stern@jorim.xyz</a> <span class="note">— for anything that needs a direct answer</span></li>
+            <li><a href="https://git.jorim.xyz/jorim">git.jorim.xyz/jorim</a> <span class="note">— my own Git instance, where most of the work happens</span></li>
+            <li><a href="https://github.com/jrmfrbg">github.com/jrmfrbg</a> <span class="note">— public repos</span></li>
+            <li><a href="https://instagram.com/jrm.frbg">instagram.com/jrm.frbg</a> <span class="note">— the non-code part</span></li>
+        </ul>
+    </section>
 
-        // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            initFileNavigation();
-            initProjectEffects();
-            
-            // Start typing animation for about section after a brief delay
-            setTimeout(() => typingAnimations.about(), 125);
-        });
-    </script>
+    <footer>
+        Jorim Stern, Freiburg — served by my own server.
+    </footer>
+
+</div>
+
 </body>
 </html>
