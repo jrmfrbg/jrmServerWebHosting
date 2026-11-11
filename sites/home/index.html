@@ -108,23 +108,55 @@
         /* ---------- projects ---------- */
 
         .project {
-            padding: 22px 0;
-            border-bottom: 1px solid var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-alt);
+            margin-bottom: 12px;
+            overflow: hidden;
         }
 
-        .project:last-child {
-            border-bottom: none;
+        .project summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 14px 16px;
+            user-select: none;
         }
 
-        .project h3 {
+        .project summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .project summary::after {
+            content: '+';
+            margin-left: auto;
+            font-family: var(--mono);
+            color: var(--faint);
+        }
+
+        .project[open] summary::after {
+            content: '−';
+        }
+
+        .project summary:hover .title {
+            color: var(--accent);
+        }
+
+        .project .title {
             font-size: 17px;
             font-weight: 600;
             font-family: var(--mono);
         }
 
-        .project h3 .sep {
+        .project .title .sep {
             color: var(--faint);
             font-weight: 400;
+        }
+
+        .project .body {
+            padding: 0 16px 16px;
         }
 
         .project p {
@@ -251,70 +283,90 @@
             Energy measurement and solar technology are the common thread.
         </p>
         <p>
-            Besides that I work as a freelance stage technician, setting up lighting and sound systems for
-            live events — which turned out to be decent training for writing firmware that has to work the
-            first time. On the side I write backend tooling in Go and run my own servers.
+            Besides that, I used to work as a freelance stage technician, setting up lighting and sound
+            systems for live events — which turned out to be decent training for writing firmware that has
+            to work the first time. On the side I write backend tooling in Go and run my own servers.
         </p>
     </section>
 
     <section id="projects">
         <h2>Projects</h2>
 
-        <div class="project">
-            <h3>solar_inverter_tester_software</h3>
-            <p>
-                Embedded software for a solar inverter test system. It runs an inverter through its operating
-                states, acquires voltage, current and power data continuously and evaluates efficiency and
-                behavior — turning what used to be manual lab measurements into a repeatable automated test
-                procedure.
-            </p>
-            <p class="dim">C/C++ · measurement acquisition · automated test sequences</p>
-            <p class="links">
-                <a href="https://git.jorim.xyz/jorim">git.jorim.xyz/jorim</a>
-            </p>
-        </div>
+        <details class="project">
+            <summary><span class="title">solar_inverter_tester_software</span></summary>
+            <div class="body">
+                <p>
+                    Embedded software for a solar inverter test system. It runs an inverter through its operating
+                    states, acquires voltage, current and power data continuously and evaluates efficiency and
+                    behavior — turning what used to be manual lab measurements into a repeatable automated test
+                    procedure.
+                </p>
+                <p class="dim">C/C++ · measurement acquisition · automated test sequences · not public</p>
+            </div>
+        </details>
 
-        <div class="project">
-            <h3>Mein-Lieber_Scholli! <span class="sep">— bidirectional power meter</span></h3>
-            <p>
-                A fully open-source power meter, hardware and software, built as an alternative to commercial
-                smart plugs like Shelly. It measures power flow in both directions, which makes it useful for
-                solar installations: you can see when you are feeding power back into the grid.
-            </p>
-            <p>
-                A TI MSP430 samples voltage and current with dedicated measurement ICs and computes true RMS
-                power. An ESP32 accumulates the energy, serves a web dashboard and exposes an HTTP/JSON API
-                for logging and statistics. Custom PCB, Schuko connectors, optional 7-segment display output.
-            </p>
-            <p class="dim">C (MSP430) · C++ (ESP32) · SPI · custom PCB</p>
-            <p class="links">
-                <a href="https://github.com/jrmfrbg/MeinLieberScholli">github.com/jrmfrbg/MeinLieberScholli</a>
-            </p>
-        </div>
+        <details class="project">
+            <summary><span class="title">Mein-Lieber_Scholli! <span class="sep">— bidirectional power meter</span></span></summary>
+            <div class="body">
+                <p>
+                    A fully open-source power meter, hardware and software, built as an alternative to commercial
+                    smart plugs like Shelly. It measures power flow in both directions, which makes it useful for
+                    solar installations: you can see when you are feeding power back into the grid.
+                </p>
+                <p>
+                    A TI MSP430 samples voltage and current with dedicated measurement ICs and computes true RMS
+                    power. An ESP32 accumulates the energy, serves a web dashboard and exposes an HTTP/JSON API
+                    for logging and statistics. Custom PCB, Schuko connectors, optional 7-segment display output.
+                </p>
+                <p class="dim">C (MSP430) · C++ (ESP32) · SPI · custom PCB</p>
+                <p class="links">
+                    <a href="https://github.com/jrmfrbg/MeinLieberScholli">github.com/jrmfrbg/MeinLieberScholli</a>
+                </p>
+            </div>
+        </details>
 
-        <div class="project">
-            <h3>7SegmentWattageCounterESP32</h3>
-            <p>
-                ESP32 firmware driving a 7-segment display as a live wattage counter — the readout companion
-                to my power metering projects.
-            </p>
-            <p class="dim">C · ESP32</p>
-            <p class="links">
-                <a href="https://github.com/jrmfrbg/7SegmentWattageCounterESP32">github.com/jrmfrbg/7SegmentWattageCounterESP32</a>
-            </p>
-        </div>
+        <details class="project">
+            <summary><span class="title">7SegmentWattageCounterESP32</span></summary>
+            <div class="body">
+                <p>
+                    ESP32 firmware driving a 7-segment display as a live wattage counter — the readout companion
+                    to my power metering projects.
+                </p>
+                <p class="dim">C · ESP32</p>
+                <p class="links">
+                    <a href="https://github.com/jrmfrbg/7SegmentWattageCounterESP32">github.com/jrmfrbg/7SegmentWattageCounterESP32</a>
+                </p>
+            </div>
+        </details>
 
-        <div class="project">
-            <h3>modularMidiDriver</h3>
-            <p>
-                A modular MIDI driver system for embedded devices, focused on real-time behavior and
-                extensibility. Grew out of my stage technology work.
-            </p>
-            <p class="dim">Go · MIDI</p>
-            <p class="links">
-                <a href="https://github.com/jrmfrbg/modularMidiDriver">github.com/jrmfrbg/modularMidiDriver</a>
-            </p>
-        </div>
+        <details class="project">
+            <summary><span class="title">modularMidiDriver</span></summary>
+            <div class="body">
+                <p>
+                    A modular MIDI driver system for embedded devices, focused on real-time behavior and
+                    extensibility. Grew out of my stage technology work.
+                </p>
+                <p class="dim">Go · MIDI</p>
+                <p class="links">
+                    <a href="https://github.com/jrmfrbg/modularMidiDriver">github.com/jrmfrbg/modularMidiDriver</a>
+                </p>
+            </div>
+        </details>
+
+        <details class="project">
+            <summary><span class="title">TypstSymbolViewer_Firefox</span></summary>
+            <div class="body">
+                <p>
+                    A Firefox extension that shows the correct way to write a symbol in Typst whenever that
+                    symbol is highlighted — handy while writing math-heavy documents. To be transparent:
+                    mostly vibe coded, so take it with a grain of salt.
+                </p>
+                <p class="dim">JavaScript · Firefox extension</p>
+                <p class="links">
+                    <a href="https://git.jorim.xyz/jorim/TypstSymbolViewer_Firefox">git.jorim.xyz/jorim/TypstSymbolViewer_Firefox</a>
+                </p>
+            </div>
+        </details>
     </section>
 
     <section id="path">
@@ -331,7 +383,7 @@
         <div class="entry">
             <span class="what">Freelance stage technician</span>,
             <span class="where">lighting &amp; sound systems for live events</span>
-            <div class="when">2024 — present</div>
+            <div class="when">2024 — 2026</div>
             <div class="desc">Setup and operation of lighting and sound systems under real-world conditions.</div>
         </div>
 
@@ -352,7 +404,8 @@
     <section id="skills">
         <h2>Skills</h2>
         <div class="skill-row"><span class="k">embedded</span><span class="v">C, C++, ESP32, TI MSP430, Arduino, PlatformIO, SPI / I²C / UART</span></div>
-        <div class="skill-row"><span class="k">software</span><span class="v">Go, C# / .NET, Blazor, HTTP APIs, HTML / CSS</span></div>
+        <div class="skill-row"><span class="k">software</span><span class="v">Go, Python, C, HTTP APIs, HTML / CSS</span></div>
+        <div class="skill-row"><span class="k">agents</span><span class="v">building software with AI coding agents — spec-driven development, review &amp; iteration of agent output</span></div>
         <div class="skill-row"><span class="k">hardware</span><span class="v">custom PCBs, power metering, solar PV, SMD &amp; through-hole soldering</span></div>
         <div class="skill-row"><span class="k">environment</span><span class="v">Arch Linux, Git, self-hosting, stage technology</span></div>
     </section>
